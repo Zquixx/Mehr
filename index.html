@@ -130,7 +130,7 @@
   .ruin svg{width:100%;height:100%;display:block;}
   .crack{
     transition:opacity 1s ease;
-    opacity:0;
+    opacity:1;
   }
   /* направленный свет солнца, который постепенно заливает всю сцену */
   .sun-light{
@@ -140,6 +140,19 @@
     transition:opacity 1.3s ease;
     pointer-events:none;
     z-index:0;
+  }
+  /* тетради на фоне, на которых постепенно "пишутся" строки при скролле */
+  .notebook{
+    position:absolute;
+    width:110px;height:150px;
+    opacity:0.35;
+    z-index:0;
+  }
+  .notebook svg{width:100%;height:100%;display:block;}
+  .notebook-line{
+    stroke-dasharray:80;
+    stroke-dashoffset:80;
+    transition:stroke-dashoffset .8s ease;
   }
   .ground{
     position:absolute;bottom:0;left:0;right:0;height:35%;
@@ -343,7 +356,7 @@
     <li><a href="#directions">Направления</a></li>
     <li><a href="#gallery">Галерея</a></li>
     <li><a href="#join">Присоединиться</a></li>
-    <li class="login-li"><a class="login-btn" href="https://t.me/zquixx" target="_blank"><span class="avatar">Z</span> Войти</a></li>
+    <li class="login-li"><a class="login-btn" href="https://t.me/MEHRVOLUNTEER" target="_blank"><span class="avatar">Z</span> Войти</a></li>
   </ul>
 </nav>
 
@@ -354,6 +367,37 @@
       <div class="grid-overlay"></div>
       <div class="sun-light" id="sunLight"></div>
 
+      <!-- тетради, на которых постепенно появляются строки при скролле -->
+      <svg class="notebook" style="top:20%;left:8%;transform:rotate(-8deg);" viewBox="0 0 110 150" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="100" height="140" rx="6" fill="#e8ddc8"/>
+        <rect x="5" y="5" width="14" height="140" rx="6" fill="#c99b5a" opacity="0.6"/>
+        <circle cx="12" cy="20" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="40" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="60" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="80" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="100" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="120" r="2.5" fill="#0b0f0c"/>
+        <line class="notebook-line nb1" x1="30" y1="35" x2="95" y2="35" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+        <line class="notebook-line nb2" x1="30" y1="55" x2="85" y2="55" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+        <line class="notebook-line nb3" x1="30" y1="75" x2="90" y2="75" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+        <line class="notebook-line nb4" x1="30" y1="95" x2="70" y2="95" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+
+      <svg class="notebook" style="bottom:14%;right:10%;transform:rotate(6deg);" viewBox="0 0 110 150" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="5" width="100" height="140" rx="6" fill="#e8ddc8"/>
+        <rect x="5" y="5" width="14" height="140" rx="6" fill="#c99b5a" opacity="0.6"/>
+        <circle cx="12" cy="20" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="40" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="60" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="80" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="100" r="2.5" fill="#0b0f0c"/>
+        <circle cx="12" cy="120" r="2.5" fill="#0b0f0c"/>
+        <line class="notebook-line nb5" x1="30" y1="35" x2="90" y2="35" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+        <line class="notebook-line nb6" x1="30" y1="55" x2="95" y2="55" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+        <line class="notebook-line nb7" x1="30" y1="75" x2="75" y2="75" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+        <line class="notebook-line nb8" x1="30" y1="95" x2="88" y2="95" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+
       <!-- заброшенный дом на фоне: со временем в трещинах загорается свет -->
       <svg class="ruin" viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg">
         <!-- покосившиеся стены -->
@@ -363,9 +407,9 @@
         <!-- выбитое окно -->
         <path d="M70 120 L110 112 L112 160 L68 165 Z" fill="#050805"/>
         <!-- трещины, которые светятся при появлении солнца -->
-        <path class="crack" id="crack1" d="M110 60 L98 130 L120 180" stroke="#e8c874" stroke-width="2" fill="none"/>
-        <path class="crack" id="crack2" d="M150 95 L160 150 L145 210" stroke="#e8c874" stroke-width="2" fill="none"/>
-        <path class="crack" id="crack3" d="M45 110 L60 150 L40 200" stroke="#e8c874" stroke-width="1.5" fill="none"/>
+        <path class="crack" id="crack1" d="M110 60 L98 130 L120 180" stroke="#3a1f1a" stroke-width="2" fill="none"/>
+        <path class="crack" id="crack2" d="M150 95 L160 150 L145 210" stroke="#3a1f1a" stroke-width="2" fill="none"/>
+        <path class="crack" id="crack3" d="M45 110 L60 150 L40 200" stroke="#3a1f1a" stroke-width="1.5" fill="none"/>
         <!-- проём двери -->
         <rect x="130" y="150" width="30" height="70" fill="#050805"/>
       </svg>
@@ -532,6 +576,7 @@
   const sunRays = document.querySelectorAll('#sunRays line');
   const sunLight = document.getElementById('sunLight');
   const cracks = [document.getElementById('crack1'), document.getElementById('crack2'), document.getElementById('crack3')];
+  const notebookLines = document.querySelectorAll('.notebook-line');
   const blindfold = document.getElementById('blindfoldRect');
   const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
   const houses = [document.getElementById('house1'), document.getElementById('house2')];
@@ -556,11 +601,18 @@
     // свет солнца постепенно заливает всю сцену
     sunLight.style.opacity = sunP;
 
-    // трещины на заброшенном доме загораются вслед за светом, одна за другой, и не гаснут при скролле назад
+    // трещины на доме "затягиваются", исчезая по мере скролла — дом словно чинится
     cracks.forEach((crack, i) => {
-      const start = 0.35 + i * 0.1;
-      const p = Math.min(Math.max((maxProgress - start) / 0.25, 0), 1);
-      crack.style.opacity = p;
+      const start = 0.1 + i * 0.08;
+      const p = Math.min(Math.max((maxProgress - start) / 0.3, 0), 1);
+      crack.style.opacity = 1 - p;
+    });
+
+    // строки в тетрадях постепенно "дописываются" по мере скролла
+    notebookLines.forEach((line, i) => {
+      const start = 0.15 + i * 0.07;
+      const p = Math.min(Math.max((maxProgress - start) / 0.2, 0), 1);
+      line.style.strokeDashoffset = 80 * (1 - p);
     });
 
     // 0.2 -> 0.6: повязка постепенно исчезает вслед за светом солнца
