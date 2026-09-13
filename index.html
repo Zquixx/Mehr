@@ -56,7 +56,7 @@
 
   /* HERO / SCROLL SCENE */
   .hero{
-    height:300vh; /* даёт пространство для скролл-анимации */
+    height:300vh;
     position:relative;
   }
   .hero-sticky{
@@ -72,28 +72,20 @@
   .goddess{
     position:relative;
     width:180px;height:380px;
-    transition:filter .3s;
     z-index:3;
   }
   .goddess svg{width:100%;height:100%;display:block;}
+  
   .sun-wrap{
     position:absolute;
     top:3%;right:3%;
     width:140px;height:140px;
     opacity:0;
-    transition:opacity 1.2s ease;
     z-index:1;
     filter:drop-shadow(0 0 30px rgba(232,200,116,0.5));
   }
   .sun-wrap svg{width:100%;height:100%;}
-  #sunRays line{
-    transition:opacity .8s ease;
-  }
-  .blindfold{
-    transition:opacity 1s ease, transform 1s ease;
-    transform-origin:center;
-  }
-  /* тонкая футуристичная сетка на фоне сцены */
+  
   .grid-overlay{
     position:absolute;inset:0;
     background-image:
@@ -104,7 +96,6 @@
     pointer-events:none;
     z-index:0;
   }
-  /* плавающие частицы света */
   .particle{
     position:absolute;
     width:4px;height:4px;
@@ -119,7 +110,7 @@
     0%,100%{transform:translateY(0) translateX(0);opacity:0.2;}
     50%{transform:translateY(-30px) translateX(10px);opacity:0.6;}
   }
-  /* заброшенный дом на фоне, который "оживает" по мере появления света */
+  
   .ruin{
     position:absolute;
     bottom:10%;left:6%;
@@ -128,20 +119,15 @@
     z-index:0;
   }
   .ruin svg{width:100%;height:100%;display:block;}
-  .crack{
-    transition:opacity 1s ease;
-    opacity:1;
-  }
-  /* направленный свет солнца, который постепенно заливает всю сцену */
+  
   .sun-light{
     position:absolute;inset:0;
     background:linear-gradient(225deg, rgba(232,200,116,0.22) 0%, rgba(232,200,116,0) 45%);
     opacity:0;
-    transition:opacity 1.3s ease;
     pointer-events:none;
     z-index:0;
   }
-  /* тетради на фоне, на которых постепенно "пишутся" строки при скролле */
+  
   .notebook{
     position:absolute;
     width:110px;height:150px;
@@ -152,8 +138,8 @@
   .notebook-line{
     stroke-dasharray:80;
     stroke-dashoffset:80;
-    transition:stroke-dashoffset .8s ease;
   }
+  
   .ground{
     position:absolute;bottom:0;left:0;right:0;height:35%;
     background:linear-gradient(to top, #1c140c, transparent);
@@ -162,16 +148,15 @@
     position:absolute;bottom:8%;
     width:40px;height:80px;
     opacity:0;transform:translateY(40px) scale(0.6);
-    transition:opacity 1s ease, transform 1s ease;
   }
   .tree svg{width:100%;height:100%;}
   .house{
     position:absolute;bottom:9%;
     width:70px;height:70px;
     opacity:0;transform:translateY(50px) scale(0.5);
-    transition:opacity 1.1s ease, transform 1.1s ease;
   }
   .house svg{width:100%;height:100%;}
+  
   .hero-text{
     position:absolute;top:12%;left:50%;transform:translateX(-50%);
     text-align:center;z-index:5;
@@ -218,7 +203,6 @@
   .card{
     background:rgba(18,36,26,0.4);
     backdrop-filter:blur(12px);
-    -webkit-backdrop-filter:blur(12px);
     border-radius:16px;
     padding:35px 25px;
     text-align:center;
@@ -258,7 +242,6 @@
   }
   .reveal.visible{opacity:1;transform:translateY(0);}
 
-  /* курсор-свечение, следующее за мышью */
   .cursor-glow{
     position:fixed;
     width:350px;height:350px;
@@ -270,7 +253,6 @@
     transition:width .3s, height .3s;
   }
 
-  /* живая плашка активности */
   .live-badge{
     position:fixed;
     bottom:25px;left:25px;
@@ -297,7 +279,6 @@
     100%{box-shadow:0 0 0 0 rgba(76,175,107,0);}
   }
 
-  /* галерея акций */
   .gallery-grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -367,7 +348,7 @@
       <div class="grid-overlay"></div>
       <div class="sun-light" id="sunLight"></div>
 
-      <!-- тетради, на которых постепенно появляются строки при скролле -->
+      <!-- Тетради -->
       <svg class="notebook" style="top:20%;left:8%;transform:rotate(-8deg);" viewBox="0 0 110 150" xmlns="http://www.w3.org/2000/svg">
         <rect x="5" y="5" width="100" height="140" rx="6" fill="#e8ddc8"/>
         <rect x="5" y="5" width="14" height="140" rx="6" fill="#c99b5a" opacity="0.6"/>
@@ -398,19 +379,14 @@
         <line class="notebook-line nb8" x1="30" y1="95" x2="88" y2="95" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
       </svg>
 
-      <!-- заброшенный дом на фоне: со временем в трещинах загорается свет -->
+      <!-- Дом с трещинами -->
       <svg class="ruin" viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg">
-        <!-- покосившиеся стены -->
         <path d="M20 220 L30 90 L110 60 L190 95 L200 220 Z" fill="#0e1610" stroke="#1c2b20" stroke-width="2"/>
-        <!-- проломленная крыша -->
         <path d="M20 92 L110 55 L200 98 L165 108 L110 82 L58 105 Z" fill="#0a120d"/>
-        <!-- выбитое окно -->
         <path d="M70 120 L110 112 L112 160 L68 165 Z" fill="#050805"/>
-        <!-- трещины, которые светятся при появлении солнца -->
         <path class="crack" id="crack1" d="M110 60 L98 130 L120 180" stroke="#3a1f1a" stroke-width="2" fill="none"/>
         <path class="crack" id="crack2" d="M150 95 L160 150 L145 210" stroke="#3a1f1a" stroke-width="2" fill="none"/>
         <path class="crack" id="crack3" d="M45 110 L60 150 L40 200" stroke="#3a1f1a" stroke-width="1.5" fill="none"/>
-        <!-- проём двери -->
         <rect x="130" y="150" width="30" height="70" fill="#050805"/>
       </svg>
 
@@ -419,42 +395,51 @@
       <div class="particle" style="top:55%;left:25%;animation-delay:3s;"></div>
       <div class="particle" style="top:65%;left:80%;animation-delay:2s;"></div>
       <div class="particle" style="top:45%;left:50%;animation-delay:4s;"></div>
+      
       <div class="hero-text">
         <h1>MEHR</h1>
         <p>Свет начинается с одного шага</p>
       </div>
 
+      <!-- Главная фигура (человек) -->
       <div class="goddess" id="goddess">
         <svg viewBox="0 0 220 420" xmlns="http://www.w3.org/2000/svg">
-          <!-- голова -->
-          <circle cx="110" cy="55" r="32" fill="#f2f2ea"/>
-          <!-- повязка на глазах -->
-          <rect id="blindfoldRect" x="80" y="48" width="60" height="15" rx="7" fill="#232323"/>
+          <defs>
+            <!-- Свечение от экрана телефона на лицо -->
+            <radialGradient id="phoneGlow" cx="50%" cy="100%" r="80%">
+              <stop offset="0%" stop-color="#8fd3e8"/>
+              <stop offset="50%" stop-color="#2a3c31"/>
+              <stop offset="100%" stop-color="#0a120d"/>
+            </radialGradient>
+          </defs>
 
-          <!-- тело + плотные руки и ноги одним силуэтом -->
-          <path d="M110 95
-                   C145 95 158 118 163 148
-                   L180 215
-                   C184 230 162 237 156 222
-                   L142 168
-                   L150 235
-                   L150 350
-                   L116 350
-                   L112 250
-                   L108 250
-                   L104 350
-                   L70 350
-                   L70 235
-                   L78 168
-                   L64 222
-                   C58 237 36 230 40 215
-                   L57 148
-                   C62 118 75 95 110 95 Z"
-                fill="#f2f2ea"/>
+          <!-- ТЁМНАЯ ВЕРСИЯ (Человек во тьме, руки с телефоном) -->
+          <g id="personDark" style="opacity:1;">
+            <circle cx="110" cy="55" r="32" fill="url(#phoneGlow)"/>
+            <path d="M110 95 C140 95 155 115 155 140 L150 350 L116 350 L112 250 L108 250 L104 350 L70 350 L65 140 C65 115 80 95 110 95 Z" fill="#0a120d"/>
+            <!-- Руки, согнутые и удерживающие телефон -->
+            <path d="M 70 110 L 45 150 L 85 170" stroke="#0a120d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M 150 110 L 175 150 L 135 170" stroke="#0a120d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </g>
+
+          <!-- СВЕТЛАЯ ВЕРСИЯ (При свете солнца, руки опущены) -->
+          <g id="personLight" style="opacity:0;">
+            <circle cx="110" cy="55" r="32" fill="#f2f2ea"/>
+            <path d="M110 95 C140 95 155 115 155 140 L150 350 L116 350 L112 250 L108 250 L104 350 L70 350 L65 140 C65 115 80 95 110 95 Z" fill="#f2f2ea"/>
+            <!-- Руки расслаблены и опущены -->
+            <path d="M 70 110 L 50 180 L 55 240" stroke="#f2f2ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M 150 110 L 170 180 L 165 240" stroke="#f2f2ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </g>
+
+          <!-- ТЕЛЕФОН -->
+          <g id="phoneGroup">
+            <rect x="90" y="140" width="40" height="66" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/>
+            <rect id="phoneScreen" x="94" y="144" width="32" height="54" rx="2" fill="#8fd3e8"/>
+          </g>
         </svg>
       </div>
 
-      <!-- солнце в углу, разгорающееся при скролле -->
+      <!-- Солнце -->
       <div class="sun-wrap" id="sunWrap">
         <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
           <circle cx="150" cy="150" r="48" fill="#e8c874" id="sunCore"/>
@@ -471,11 +456,10 @@
         </svg>
       </div>
 
-      <!-- дома, которые "строятся" вслед за деревьями -->
+      <!-- Дома и Деревья -->
       <svg class="house" id="house1" style="left:22%;" viewBox="0 0 60 60"><polygon points="30,5 55,28 5,28" fill="#c99b5a"/><rect x="12" y="28" width="36" height="28" fill="#e8dfc8"/><rect x="24" y="38" width="12" height="18" fill="#5b3a20"/></svg>
       <svg class="house" id="house2" style="left:68%;" viewBox="0 0 60 60"><polygon points="30,5 55,28 5,28" fill="#c99b5a"/><rect x="12" y="28" width="36" height="28" fill="#e8dfc8"/><rect x="24" y="38" width="12" height="18" fill="#5b3a20"/></svg>
 
-      <!-- деревья, появляющиеся при "прозрении" -->
       <svg class="tree" id="tree1" style="left:15%;" viewBox="0 0 40 80"><circle cx="20" cy="20" r="18" fill="#4caf6b"/><rect x="16" y="35" width="8" height="45" fill="#5b3a20"/></svg>
       <svg class="tree" id="tree2" style="left:75%;" viewBox="0 0 40 80"><circle cx="20" cy="20" r="18" fill="#4caf6b"/><rect x="16" y="35" width="8" height="45" fill="#5b3a20"/></svg>
       <svg class="tree" id="tree3" style="left:85%;bottom:5%;" viewBox="0 0 40 80"><circle cx="20" cy="20" r="14" fill="#4caf6b"/><rect x="16" y="30" width="8" height="35" fill="#5b3a20"/></svg>
@@ -570,57 +554,68 @@
 </footer>
 
 <script>
-  // Прогресс сцены богини на основе скролла по .hero
+  // Элементы
   const heroScene = document.getElementById('heroScene');
   const sunWrap = document.getElementById('sunWrap');
   const sunRays = document.querySelectorAll('#sunRays line');
   const sunLight = document.getElementById('sunLight');
   const cracks = [document.getElementById('crack1'), document.getElementById('crack2'), document.getElementById('crack3')];
   const notebookLines = document.querySelectorAll('.notebook-line');
-  const blindfold = document.getElementById('blindfoldRect');
+  
+  const phoneGroup = document.getElementById('phoneGroup');
+  const phoneScreen = document.getElementById('phoneScreen');
+  const personDark = document.getElementById('personDark');
+  const personLight = document.getElementById('personLight');
+
   const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
   const houses = [document.getElementById('house1'), document.getElementById('house2')];
 
-  let maxProgress = 0;
-
+  // Основная функция обновления анимаций при скролле (теперь работает В ОБЕ СТОРОНЫ)
   function updateScene(){
     const rect = heroScene.getBoundingClientRect();
     const total = heroScene.offsetHeight - window.innerHeight;
+    
+    // progress всегда точно следует за скроллом, переменной maxProgress больше нет
     let progress = -rect.top / total;
     progress = Math.min(Math.max(progress, 0), 1);
-    maxProgress = Math.max(maxProgress, progress);
 
-    // 0.15 -> 0.55: солнце в углу разгорается, лучи проявляются
+    // 0.1 -> 0.25: экран телефона гаснет, свет на лице угасает
+    const screenP = Math.min(Math.max((progress - 0.1) / 0.15, 0), 1);
+    phoneScreen.style.opacity = 1 - screenP;
+
+    // 0.2 -> 0.4: телефон пропадает из рук, руки плавно опускаются (смена фигур)
+    const phoneP = Math.min(Math.max((progress - 0.2) / 0.2, 0), 1);
+    phoneGroup.style.opacity = 1 - phoneP;
+    phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
+    phoneGroup.style.transformOrigin = '110px 173px';
+    
+    personDark.style.opacity = 1 - phoneP;
+    personLight.style.opacity = phoneP;
+
+    // 0.15 -> 0.55: солнце в углу разгорается
     const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
     sunWrap.style.opacity = sunP;
     sunRays.forEach((ray, i) => {
       const rayStart = sunP - i * 0.05;
       ray.style.opacity = Math.min(Math.max(rayStart * 2, 0), 1);
     });
-
-    // свет солнца постепенно заливает всю сцену
     sunLight.style.opacity = sunP;
 
-    // трещины на доме "затягиваются", исчезая по мере скролла — дом словно чинится
+    // трещины на доме затягиваются (и появляются обратно при скролле вверх)
     cracks.forEach((crack, i) => {
       const start = 0.1 + i * 0.08;
-      const p = Math.min(Math.max((maxProgress - start) / 0.3, 0), 1);
+      const p = Math.min(Math.max((progress - start) / 0.3, 0), 1);
       crack.style.opacity = 1 - p;
     });
 
-    // строки в тетрадях постепенно "дописываются" по мере скролла
+    // строки в тетрадях (стираются при скролле вверх)
     notebookLines.forEach((line, i) => {
       const start = 0.15 + i * 0.07;
-      const p = Math.min(Math.max((maxProgress - start) / 0.2, 0), 1);
+      const p = Math.min(Math.max((progress - start) / 0.2, 0), 1);
       line.style.strokeDashoffset = 80 * (1 - p);
     });
 
-    // 0.2 -> 0.6: повязка постепенно исчезает вслед за светом солнца
-    const blindP = Math.min(Math.max((progress - 0.2) / 0.4, 0), 1);
-    blindfold.setAttribute('opacity', 1 - blindP);
-
-
-    // 0.5 -> 1: деревья появляются одно за другим
+    // 0.5 -> 1: деревья
     trees.forEach((tree, i) => {
       const start = 0.5 + i * 0.12;
       const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
@@ -628,7 +623,7 @@
       tree.style.transform = `translateY(${40 * (1 - p)}px) scale(${0.6 + p * 0.4})`;
     });
 
-    // 0.75 -> 1: дома "отстраиваются" рядом с деревьями
+    // 0.75 -> 1: дома
     houses.forEach((house, i) => {
       const start = 0.75 + i * 0.1;
       const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
