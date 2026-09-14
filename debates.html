@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehr Дебаты — Лобби</title>
+
+<!-- Подключение Firebase SDK (Compat v9) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<style>
+  :root {
+    --bg-dark: #0b0f0c;
+    --bg-mid: #12241a;
+    --accent-gold: #e8c874;
+    --accent-green: #4caf6b;
+    --text-light: #f2f2ea;
+    --protect-blue: #3b82f6;
+    --attack-red: #ef4444;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    background-image: radial-gradient(circle at 50% 0%, #1a2f21 0%, #0b0f0c 60%);
+  }
+
+  nav {
+    width: 100%; max-width: 1100px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 50px;
+  }
+  nav .logo { font-weight: 700; font-size: 1.4rem; letter-spacing: 2px; color: var(--accent-gold); text-decoration: none; }
+  nav .back-btn { color: var(--text-light); text-decoration: none; opacity: 0.8; transition: opacity .3s; }
+  nav .back-btn:hover { opacity: 1; color: var(--accent-gold); }
+
+  .container {
+    width: 100%; max-width: 900px;
+    background: rgba(18, 36, 26, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(232, 200, 116, 0.2);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  h1 { color: var(--accent-gold); margin-bottom: 20px; text-align: center; }
+  
+  #loginScreen { text-align: center; }
+  #loginScreen p { opacity: 0.8; margin-bottom: 20px; }
+  input[type="text"] {
+    padding: 14px 20px; width: 100%; max-width: 300px;
+    border-radius: 30px; border: 1px solid var(--accent-green);
+    background: rgba(11, 15, 12, 0.8); color: white;
+    font-size: 1rem; outline: none; margin-bottom: 20px;
+  }
+  .btn {
+    padding: 14px 30px; border-radius: 30px; border: none;
+    font-weight: 600; font-size: 1rem; cursor: pointer; transition: 0.3s;
+    background: var(--accent-gold); color: var(--bg-dark);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(232,200,116,0.3); }
+
+  #lobbyScreen { display: none; }
+  .room-card {
+    background: rgba(11, 15, 12, 0.8);
+    border: 1px solid rgba(232, 200, 116, 0.1);
+    padding: 20px; border-radius: 12px; margin-bottom: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .room-info h3 { color: var(--text-light); margin-bottom: 5px; font-size: 1.1rem; }
+  .room-info p { opacity: 0.7; font-size: 0.9rem; }
+  .join-room-btn { background: var(--accent-green); padding: 10px 20px; }
+
+  #roomScreen { display: none; }
+  .room-header { text-align: center; margin-bottom: 30px; }
+  .room-header h2 { color: var(--text-light); }
+  .sides-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  
+  .side {
+    padding: 20px; border-radius: 12px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .side.protect { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--protect-blue); }
+  .side.attack { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--attack-red); }
+  
+  .side h3 { margin-bottom: 15px; font-size: 1.2rem; }
+  .side.protect h3 { color: var(--protect-blue); }
+  .side.attack h3 { color: var(--attack-red); }
+  
+  .join-side-btn { margin-bottom: 20px; padding: 10px 20px; width: 100%; }
+  .protect-btn { background: var(--protect-blue); color: white; }
+  .attack-btn { background: var(--attack-red); color: white; }
+  
+  .users-list { width: 100%; list-style: none; }
+  .users-list li {
+    background: rgba(0,0,0,0.3); padding: 10px;
+    border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 0.95rem;
+  }
+
+  .leave-btn { background: transparent; border: 1px solid var(--text-light); color: var(--text-light); margin-top: 30px; }
+
+  @media (max-width: 600px) {
+    .sides-container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">MEHR</a>
+  <a href="index.html" class="back-btn">← Вернуться на главную</a>
+</nav>
+
+<div class="container">
+  
+  <!-- Вход -->
+  <div id="loginScreen">
+    <h1>Вход в Лобби Дебатов</h1>
+    <p>Введи своё имя, чтобы присоединиться к дебатам</p>
+    <input type="text" id="userNameInput" placeholder="Твоё имя или никнейм..." onkeypress="handleEnter(event)">
+    <br>
+    <button class="btn" onclick="enterLobby()">Продолжить</button>
+  </div>
+
+  <!-- Выбор комнаты -->
+  <div id="lobbyScreen">
+    <h1>Доступные темы</h1>
+    <p style="text-align:center; opacity:0.8; margin-bottom:30px;">Выбери тему, которую хочешь обсудить</p>
+    <div id="roomsList"></div>
+  </div>
+
+  <!-- Внутри комнаты дебатов -->
+  <div id="roomScreen">
+    <div class="room-header">
+      <h2 id="currentRoomTopic">Тема загружается...</h2>
+    </div>
+    
+    <div class="sides-container">
+      <div class="side protect">
+        <h3>🛡️ ЗАЩИТА (Protect)</h3>
+        <button class="btn join-side-btn protect-btn" onclick="joinSide('protect')">Встать на защиту</button>
+        <ul class="users-list" id="protectUsers"></ul>
+      </div>
+
+      <div class="side attack">
+        <h3>⚔️ АТАКА (Attack)</h3>
+        <button class="btn join-side-btn attack-btn" onclick="joinSide('attack')">Перейти в атаку</button>
+        <ul class="users-list" id="attackUsers"></ul>
+      </div>
+    </div>
+    
+    <div style="text-align: center;">
+      <button class="btn leave-btn" onclick="leaveRoom()">Выйти в лобби</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Конфигурация с твоими ключами + добавленный URL Realtime Database
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCrGEsruUXdx_eD-5TC5HD75gaCp-IKSc",
+    authDomain: "mehr-debates.firebaseapp.com",
+    databaseURL: "https://mehr-debates-default-rtdb.firebaseio.com",
+    projectId: "mehr-debates",
+    storageBucket: "mehr-debates.firebasestorage.app",
+    messagingSenderId: "261343927171",
+    appId: "1:261343927171:web:b068906caa12acfe55f4b6",
+    measurementId: "G-8XCK5V2LDT"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let currentUser = { id: 'user_' + Math.random().toString(36).substr(2, 9), name: '' };
+  let currentRoomId = null;
+  let userRef = null;
+
+  const defaultRooms = {
+    room1: { topic: "ИИ заменит большинство профессий через 10 лет" },
+    room2: { topic: "Оценки в школе не отражают реальных знаний" },
+    room3: { topic: "Социальные сети приносят больше вреда, чем пользы" }
+  };
+
+  function handleEnter(e) { if(e.key === 'Enter') enterLobby(); }
+
+  function enterLobby() {
+    const nameInput = document.getElementById('userNameInput').value.trim();
+    if (!nameInput) return alert("Пожалуйста, введи имя!");
+    
+    currentUser.name = nameInput;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('lobbyScreen').style.display = 'block';
+    
+    initRooms();
+  }
+
+  function initRooms() {
+    const roomsRef = db.ref('rooms');
+    
+    roomsRef.once('value', snapshot => {
+      if (!snapshot.exists()) roomsRef.set(defaultRooms);
+    });
+
+    roomsRef.on('value', snapshot => {
+      const rooms = snapshot.val();
+      const roomsListEl = document.getElementById('roomsList');
+      roomsListEl.innerHTML = '';
+
+      if (rooms) {
+        Object.keys(rooms).forEach(roomId => {
+          const room = rooms[roomId];
+          const protectCount = room.protect ? Object.keys(room.protect).length : 0;
+          const attackCount = room.attack ? Object.keys(room.attack).length : 0;
+          
+          roomsListEl.innerHTML += `
+            <div class="room-card">
+              <div class="room-info">
+                <h3>${room.topic}</h3>
+                <p>Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
+              </div>
+              <button class="btn join-room-btn" onclick="openRoom('${roomId}', '${room.topic.replace(/'/g, "\\'")}')">Войти</button>
+            </div>
+          `;
+        });
+      }
+    });
+  }
+
+  function openRoom(roomId, topic) {
+    currentRoomId = roomId;
+    document.getElementById('lobbyScreen').style.display = 'none';
+    document.getElementById('roomScreen').style.display = 'block';
+    document.getElementById('currentRoomTopic').innerText = topic;
+
+    db.ref(`rooms/${roomId}`).on('value', snapshot => {
+      const room = snapshot.val();
+      renderUsers('protectUsers', room ? room.protect : null);
+      renderUsers('attackUsers', room ? room.attack : null);
+    });
+  }
+
+  function renderUsers(elementId, usersObj) {
+    const listEl = document.getElementById(elementId);
+    listEl.innerHTML = '';
+    if (usersObj) {
+      Object.values(usersObj).forEach(user => {
+        listEl.innerHTML += `<li>${user.name}</li>`;
+      });
+    }
+  }
+
+  function joinSide(side) {
+    if (userRef) userRef.remove();
+
+    userRef = db.ref(`rooms/${currentRoomId}/${side}/${currentUser.id}`);
+    userRef.set({ name: currentUser.name });
+    userRef.onDisconnect().remove(); 
+  }
+
+  function leaveRoom() {
+    if (userRef) {
+      userRef.remove();
+      userRef.onDisconnect().cancel();
+      userRef = null;
+    }
+    
+    if (currentRoomId) {
+      db.ref(`rooms/${currentRoomId}`).off();
+      currentRoomId = null;
+    }
+    
+    document.getElementById('roomScreen').style.display = 'none';
+    document.getElementById('lobbyScreen').style.display = 'block';
+  }
+</script>
+</body>
+</html>
