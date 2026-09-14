@@ -39,7 +39,7 @@
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 50px;
   }
-  nav .logo { font-weight: 700; font-size: 1.4rem; letter-spacing: 2px; color: var(--accent-gold); text-decoration: none; }
+  nav .logo { font-weight: 700; font-size: 1.4rem; letter-spacing: 2px; color: var(--accent-gold); text-decoration: none; cursor: pointer; }
   nav .back-btn { color: var(--text-light); text-decoration: none; opacity: 0.8; transition: opacity .3s; }
   nav .back-btn:hover { opacity: 1; color: var(--accent-gold); }
 
@@ -57,7 +57,7 @@
   
   #loginScreen { text-align: center; }
   #loginScreen p { opacity: 0.8; margin-bottom: 20px; }
-  input[type="text"] {
+  input[type="text"], input[type="password"] {
     padding: 14px 20px; width: 100%; max-width: 300px;
     border-radius: 30px; border: 1px solid var(--accent-green);
     background: rgba(11, 15, 12, 0.8); color: white;
@@ -79,7 +79,7 @@
   }
   .room-info h3 { color: var(--text-light); margin-bottom: 5px; font-size: 1.1rem; }
   .room-info p { opacity: 0.7; font-size: 0.9rem; }
-  .join-room-btn { background: var(--accent-green); padding: 10px 20px; }
+  .join-room-btn { background: var(--accent-green); padding: 10px 20px; color: white; }
 
   #roomScreen { display: none; }
   .room-header { text-align: center; margin-bottom: 30px; }
@@ -117,20 +117,20 @@
 <body>
 
 <nav>
-  <a href="index.html" class="logo">MEHR</a>
+  <a href="#" class="logo" onclick="handleSecretClick(); return false;" title="" style="user-select: none;">MEHR</a>
   <a href="index.html" class="back-btn">← Вернуться на главную</a>
 </nav>
 
 <div class="container">
   
   <!-- Вход -->
-<div id="loginScreen">
-  <h1>Вход в Лобби Дебатов</h1>
-  <p>Введи своё имя, чтобы присоединиться к дебатам</p>
-  <input type="text" id="userNameInput" placeholder="Твоё имя или никнейм..." onkeypress="handleEnter(event)">
-  <br>
-  <button class="btn" onclick="enterLobby()">Продолжить</button>
-</div>
+  <div id="loginScreen">
+    <h1>Вход в Лобби Дебатов</h1>
+    <p>Введи своё имя, чтобы присоединиться к дебатам</p>
+    <input type="text" id="userNameInput" placeholder="Твоё имя или никнейм..." onkeypress="handleEnter(event)">
+    <br>
+    <button class="btn" onclick="enterLobby()">Продолжить</button>
+  </div>
 
   <!-- Выбор комнаты -->
   <div id="lobbyScreen">
@@ -164,10 +164,38 @@
     </div>
   </div>
 
+  <!-- Скрытая панель Администратора -->
+  <div id="adminScreen" style="display: none; margin-top: 30px; background: rgba(0,0,0,0.6); padding: 25px; border-radius: 12px; border: 1px solid var(--accent-gold);">
+    <h2 style="color: var(--accent-gold); margin-bottom: 15px; text-align: center;">Панель Управления</h2>
+    
+    <div id="adminLoginBox">
+      <p style="margin-bottom: 10px; text-align: center;">Введите секретный код администратора:</p>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <input type="password" id="adminCodeInput" placeholder="Секретный код..." style="max-width: 200px; margin-bottom: 0;">
+        <button class="btn" onclick="checkAdminCode()" style="padding: 10px 20px;">Войти</button>
+      </div>
+    </div>
+
+    <div id="adminDashboard" style="display: none;">
+      <h3 style="color: var(--accent-green); margin-bottom: 10px;">➕ Добавить новую тему</h3>
+      <div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
+        <input type="text" id="newTopicInput" placeholder="Введите тему дебатов..." style="margin-bottom: 0; flex: 1;">
+        <button class="btn" onclick="addNewRoom()" style="background: var(--accent-green); color: white; white-space: nowrap;">Создать</button>
+      </div>
+
+      <h3 style="color: var(--accent-gold); margin-bottom: 10px;">🏆 Competition Mode (Баллы команд)</h3>
+      <p style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 15px;">Начисляйте баллы командам Защиты или Атаки в реальном времени.</p>
+      <div id="adminRoomsControl"></div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn" onclick="toggleAdminPanel()" style="background: transparent; border: 1px solid #fff; color: #fff; padding: 6px 15px; font-size: 0.9rem;">Закрыть админку</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  // Конфигурация с твоими ключами + добавленный URL Realtime Database
   const firebaseConfig = {
     apiKey: "AIzaSyCCrGEsruUXdx_eD-5TC5HD75gaCp-IKSc",
     authDomain: "mehr-debates.firebaseapp.com",
@@ -187,39 +215,38 @@
   let userRef = null;
 
   const defaultRooms = {
-    room1: { topic: "ИИ заменит большинство профессий через 10 лет" },
-    room2: { topic: "Оценки в школе не отражают реальных знаний" },
-    room3: { topic: "Социальные сети приносят больше вреда, чем пользы" }
+    room1: { topic: "ИИ заменит большинство профессий через 10 лет", scores: { protect: 0, attack: 0 } },
+    room2: { topic: "Оценки в школе не отражают реальных знаний", scores: { protect: 0, attack: 0 } },
+    room3: { topic: "Социальные сети приносят больше вреда, чем пользы", scores: { protect: 0, attack: 0 } }
   };
 
   function handleEnter(e) { if(e.key === 'Enter') enterLobby(); }
 
-  // Автоматически подставляем имя и в инпут, и в память скрипта
   document.addEventListener('DOMContentLoaded', () => {
     const savedName = localStorage.getItem('debatesUserName');
     if (savedName) {
       const input = document.getElementById('userNameInput');
       if (input) {
         input.value = savedName;
-        currentUser.name = savedName; // Сразу сохраняем в объект юзера!
+        currentUser.name = savedName;
       }
     }
   });
 
-function enterLobby() {
-  const nameInput = document.getElementById('userNameInput').value.trim();
-  if (!nameInput) return alert("Пожалуйста, введи имя!");
-  
-  currentUser.name = nameInput;
-  localStorage.setItem('debatesUserName', nameInput);
-  
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('lobbyScreen').style.display = 'block';
+  function enterLobby() {
+    const nameInput = document.getElementById('userNameInput').value.trim();
+    if (!nameInput) return alert("Пожалуйста, введи имя!");
+    
+    currentUser.name = nameInput;
+    localStorage.setItem('debatesUserName', nameInput);
+    
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('lobbyScreen').style.display = 'block';
 
-  initRooms();
-}
+    initRooms();
+  }
 
- function initRooms() {
+  function initRooms() {
     const roomsRef = db.ref('rooms');
     
     roomsRef.once('value', snapshot => {
@@ -240,17 +267,15 @@ function enterLobby() {
           const room = rooms[roomId];
           const protectCount = room.protect ? Object.keys(room.protect).length : 0;
           const attackCount = room.attack ? Object.keys(room.attack).length : 0;
-          
-          // Экранируем кавычки для безопасности в HTML
           const safeTopic = room.topic.replace(/'/g, "\\'");
 
           roomsListEl.innerHTML += `
-            <div class="room-card" style="background: rgba(11, 15, 12, 0.8); border: 1px solid rgba(232, 200, 116, 0.1); padding: 20px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="room-card">
               <div class="room-info">
-                <h3 style="color: #f2f2ea; margin-bottom: 5px; font-size: 1.1rem;">${room.topic}</h3>
-                <p style="opacity: 0.7; font-size: 0.9rem;">Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
+                <h3>${room.topic}</h3>
+                <p>Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
               </div>
-              <button class="btn join-room-btn" onclick="openRoom('${roomId}', '${safeTopic}')" style="background: var(--accent-green); padding: 10px 20px; color: white;">Войти</button>
+              <button class="btn join-room-btn" onclick="openRoom('${roomId}', '${safeTopic}')">Войти</button>
             </div>
           `;
         });
@@ -262,12 +287,23 @@ function enterLobby() {
     currentRoomId = roomId;
     document.getElementById('lobbyScreen').style.display = 'none';
     document.getElementById('roomScreen').style.display = 'block';
-    document.getElementById('currentRoomTopic').innerText = topic;
 
     db.ref(`rooms/${roomId}`).on('value', snapshot => {
       const room = snapshot.val();
-      renderUsers('protectUsers', room ? room.protect : null);
-      renderUsers('attackUsers', room ? room.attack : null);
+      if (!room) return;
+
+      const pScore = room.scores && room.scores.protect ? room.scores.protect : 0;
+      const aScore = room.scores && room.scores.attack ? room.scores.attack : 0;
+
+      document.getElementById('currentRoomTopic').innerHTML = `
+        ${topic}<br>
+        <span style="font-size: 1rem; color: var(--accent-gold); font-weight: normal; display: block; margin-top: 8px;">
+          📊 Счёт матча — 🛡️ Защита: ${pScore} | ⚔️ Атака: ${aScore}
+        </span>
+      `;
+
+      renderUsers('protectUsers', room.protect);
+      renderUsers('attackUsers', room.attack);
     });
   }
 
@@ -305,6 +341,103 @@ function enterLobby() {
     
     document.getElementById('roomScreen').style.display = 'none';
     document.getElementById('lobbyScreen').style.display = 'block';
+  }
+
+  let secretClicks = 0;
+  let secretTimer = null;
+  const ADMIN_SECRET_CODE = "mehr2026";
+
+  function handleSecretClick() {
+    secretClicks++;
+    clearTimeout(secretTimer);
+    secretTimer = setTimeout(() => { secretClicks = 0; }, 1000);
+
+    if (secretClicks >= 3) {
+      secretClicks = 0;
+      clearTimeout(secretTimer);
+      toggleAdminPanel();
+    }
+  }
+
+  function toggleAdminPanel() {
+    const adminScreen = document.getElementById('adminScreen');
+    adminScreen.style.display = adminScreen.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function checkAdminCode() {
+    const code = document.getElementById('adminCodeInput').value;
+    if (code === ADMIN_SECRET_CODE) {
+      document.getElementById('adminLoginBox').style.display = 'none';
+      document.getElementById('adminDashboard').style.display = 'block';
+      loadAdminControls();
+    } else {
+      alert("Неверный секретный код!");
+    }
+  }
+
+  function addNewRoom() {
+    const topicText = document.getElementById('newTopicInput').value.trim();
+    if (!topicText) return alert("Введите тему дебатов!");
+
+    const newRoomId = 'room_' + Date.now();
+    db.ref(`rooms/${newRoomId}`).set({
+      topic: topicText,
+      scores: { protect: 0, attack: 0 }
+    }, (error) => {
+      if (!error) {
+        document.getElementById('newTopicInput').value = '';
+        alert("Тема успешно создана!");
+      } else {
+        alert("Ошибка при создании темы.");
+      }
+    });
+  }
+
+  function loadAdminControls() {
+    db.ref('rooms').on('value', snapshot => {
+      const rooms = snapshot.val();
+      const controlEl = document.getElementById('adminRoomsControl');
+      if (!controlEl) return;
+      controlEl.innerHTML = '';
+
+      if (rooms) {
+        Object.keys(rooms).forEach(roomId => {
+          const room = rooms[roomId];
+          const protectScore = room.scores ? room.scores.protect || 0 : 0;
+          const attackScore = room.scores ? room.scores.attack || 0 : 0;
+
+          controlEl.innerHTML += `
+            <div style="background: rgba(11, 15, 12, 0.9); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);">
+              <p style="font-weight: 600; margin-bottom: 8px; color: #fff;">${room.topic}</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; flex-wrap: wrap; gap: 10px;">
+                <div>
+                  🛡️ Защита: <b>${protectScore}</b> 
+                  <button onclick="addScore('${roomId}', 'protect', 1)" style="padding: 2px 8px; cursor: pointer;">+</button>
+                  <button onclick="addScore('${roomId}', 'protect', -1)" style="padding: 2px 8px; cursor: pointer;">-</button>
+                </div>
+                <div>
+                  ⚔️ Атака: <b>${attackScore}</b> 
+                  <button onclick="addScore('${roomId}', 'attack', 1)" style="padding: 2px 8px; cursor: pointer;">+</button>
+                  <button onclick="addScore('${roomId}', 'attack', -1)" style="padding: 2px 8px; cursor: pointer;">-</button>
+                </div>
+                <button onclick="deleteRoom('${roomId}')" style="background: var(--attack-red); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Удалить</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+    });
+  }
+
+  function addScore(roomId, side, delta) {
+    const scoreRef = db.ref(`rooms/${roomId}/scores/${side}`);
+    scoreRef.transaction(currentScore => (currentScore || 0) + delta);
+  }
+
+  function deleteRoom(roomId) {
+    if (confirm("Точно удалить эту тему дебатов?")) {
+      db.ref(`rooms/${roomId}`).remove();
+    }
   }
 </script>
 </body>
