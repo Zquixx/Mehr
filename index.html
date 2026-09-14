@@ -243,13 +243,13 @@
   .reveal.visible{opacity:1;transform:translateY(0);}
 
  .cursor-glow{
-  position:fixed;
-  width:350px;height:350px;
-  background:radial-gradient(circle, rgba(232,200,116,0.12) 0%, transparent 70%);
-  border-radius:50%;
-  pointer-events:none;
-  z-index:99;
-  will-change:transform;
+ position:fixed;
+ width:350px;height:350px;
+ background:radial-gradient(circle, rgba(232,200,116,0.12) 0%, transparent 70%);
+ border-radius:50%;
+ pointer-events:none;
+ z-index:99;
+ will-change:transform;
 }
 
   .live-badge{
@@ -418,25 +418,25 @@
           <!-- ТЁМНАЯ ВЕРСИЯ (Человек во тьме, руки с телефоном) -->
           <g id="personDark" style="opacity:1;">
             <circle cx="110" cy="55" r="32" fill="url(#phoneGlow)"/>
-            <path d="M110 95 C140 95 155 115 155 140 L150 350 L116 350 L112 250 L108 250 L104 350 L70 350 L65 140 C65 115 80 95 110 95 Z" fill="#0a120d"/>
-            <!-- Руки, согнутые и удерживающие телефон -->
-            <path d="M 70 110 L 45 150 L 85 170" stroke="#0a120d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M 150 110 L 175 150 L 135 170" stroke="#0a120d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#0a120d"/>
+            <!-- Уверенные, плотные дорожные руки, согнутые и удерживающие телефон -->
+            <path d="M 68 112 L 40 148 L 84 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M 152 112 L 180 148 L 136 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </g>
 
           <!-- СВЕТЛАЯ ВЕРСИЯ (При свете солнца, руки опущены) -->
           <g id="personLight" style="opacity:0;">
             <circle cx="110" cy="55" r="32" fill="#f2f2ea"/>
-            <path d="M110 95 C140 95 155 115 155 140 L150 350 L116 350 L112 250 L108 250 L104 350 L70 350 L65 140 C65 115 80 95 110 95 Z" fill="#f2f2ea"/>
+            <path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#f2f2ea"/>
             <!-- Руки расслаблены и опущены -->
-            <path d="M 70 110 L 50 180 L 55 240" stroke="#f2f2ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M 150 110 L 170 180 L 165 240" stroke="#f2f2ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M 68 112 L 46 180 L 52 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M 152 112 L 174 180 L 168 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </g>
 
-          <!-- ТЕЛЕФОН -->
+          <!-- ТЕЛЕФОН (Плотный, полностью непрозрачный) -->
           <g id="phoneGroup">
-            <rect x="90" y="140" width="40" height="66" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/>
-            <rect id="phoneScreen" x="94" y="144" width="32" height="54" rx="2" fill="#8fd3e8"/>
+            <rect x="90" y="138" width="40" height="68" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/>
+            <rect id="phoneScreen" x="94" y="142" width="32" height="60" rx="3" fill="#8fd3e8"/>
           </g>
         </svg>
       </div>
