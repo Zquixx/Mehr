@@ -242,16 +242,15 @@
   }
   .reveal.visible{opacity:1;transform:translateY(0);}
 
-  .cursor-glow{
-    position:fixed;
-    width:350px;height:350px;
-    background:radial-gradient(circle, rgba(232,200,116,0.12) 0%, transparent 70%);
-    border-radius:50%;
-    pointer-events:none;
-    z-index:99;
-    transform:translate(-50%,-50%);
-    transition:width .3s, height .3s;
-  }
+ .cursor-glow{
+  position:fixed;
+  width:350px;height:350px;
+  background:radial-gradient(circle, rgba(232,200,116,0.12) 0%, transparent 70%);
+  border-radius:50%;
+  pointer-events:none;
+  z-index:99;
+  will-change:transform;
+}
 
   .live-badge{
     position:fixed;
@@ -320,6 +319,9 @@
     }
     .cursor-glow{display:none;}
   }
+.goddess, .tree, .house, .ruin, .notebook {
+  will-change: transform, opacity;
+}
 </style>
 </head>
 <body>
