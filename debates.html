@@ -39,7 +39,7 @@
     display: flex; justify-content: space-between; align-items: center;
     margin-bottom: 50px;
   }
-  nav .logo { font-weight: 700; font-size: 1.4rem; letter-spacing: 2px; color: var(--accent-gold); text-decoration: none; cursor: pointer; }
+  nav .logo { font-weight: 700; font-size: 1.4rem; letter-spacing: 2px; color: var(--accent-gold); text-decoration: none; cursor: pointer; user-select: none; }
   nav .back-btn { color: var(--text-light); text-decoration: none; opacity: 0.8; transition: opacity .3s; }
   nav .back-btn:hover { opacity: 1; color: var(--accent-gold); }
 
@@ -57,7 +57,7 @@
   
   #loginScreen { text-align: center; }
   #loginScreen p { opacity: 0.8; margin-bottom: 20px; }
-  input[type="text"], input[type="password"] {
+  input[type="text"], input[type="password"], input[type="number"] {
     padding: 14px 20px; width: 100%; max-width: 300px;
     border-radius: 30px; border: 1px solid var(--accent-green);
     background: rgba(11, 15, 12, 0.8); color: white;
@@ -75,11 +75,16 @@
     background: rgba(11, 15, 12, 0.8);
     border: 1px solid rgba(232, 200, 116, 0.1);
     padding: 20px; border-radius: 12px; margin-bottom: 15px;
-    display: flex; justify-content: space-between; align-items: center;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
   }
+  .room-info { flex: 1; }
   .room-info h3 { color: var(--text-light); margin-bottom: 5px; font-size: 1.1rem; }
-  .room-info p { opacity: 0.7; font-size: 0.9rem; }
+  .room-info p { opacity: 0.7; font-size: 0.9rem; margin-bottom: 8px; }
+  
+  .room-actions { display: flex; align-items: center; gap: 10px; }
   .join-room-btn { background: var(--accent-green); padding: 10px 20px; color: white; }
+  .vote-btn { background: transparent; border: 1px solid var(--accent-gold); color: var(--accent-gold); padding: 10px 15px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+  .vote-btn:hover, .vote-btn.voted { background: var(--accent-gold); color: var(--bg-dark); }
 
   #roomScreen { display: none; }
   .room-header { text-align: center; margin-bottom: 30px; }
@@ -93,7 +98,7 @@
   .side.protect { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--protect-blue); }
   .side.attack { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--attack-red); }
   
-  .side h3 { margin-bottom: 15px; font-size: 1.2rem; }
+  .side h3 { margin-bottom: 15px; font-size: 1.2rem; text-align: center; }
   .side.protect h3 { color: var(--protect-blue); }
   .side.attack h3 { color: var(--attack-red); }
   
@@ -117,7 +122,7 @@
 <body>
 
 <nav>
-  <a href="#" class="logo" onclick="handleLogoClick(event); return false;" title="" style="user-select: none;">MEHR</a>
+  <a href="#" class="logo" onclick="handleLogoClick(event); return false;">MEHR</a>
   <a href="index.html" class="back-btn">← Вернуться на главную</a>
 </nav>
 
@@ -135,7 +140,7 @@
   <!-- Выбор комнаты -->
   <div id="lobbyScreen">
     <h1>Доступные темы</h1>
-    <p style="text-align:center; opacity:0.8; margin-bottom:30px;">Выбери тему, которую хочешь обсудить</p>
+    <p style="text-align:center; opacity:0.8; margin-bottom:30px;">Выбери тему, зайди в комнату или проголосуй за лучшую тему</p>
     <div id="roomsList"></div>
   </div>
 
@@ -147,13 +152,13 @@
     
     <div class="sides-container">
       <div class="side protect">
-        <h3>🛡️ ЗАЩИТА (Protect)</h3>
+        <h3 id="protectHeaderTitle">🛡️ ЗАЩИТА (Protect)</h3>
         <button class="btn join-side-btn protect-btn" onclick="joinSide('protect')">Встать на защиту</button>
         <ul class="users-list" id="protectUsers"></ul>
       </div>
 
       <div class="side attack">
-        <h3>⚔️ АТАКА (Attack)</h3>
+        <h3 id="attackHeaderTitle">⚔️ АТАКА (Attack)</h3>
         <button class="btn join-side-btn attack-btn" onclick="joinSide('attack')">Перейти в атаку</button>
         <ul class="users-list" id="attackUsers"></ul>
       </div>
@@ -178,12 +183,13 @@
 
     <div id="adminDashboard" style="display: none;">
       <h3 style="color: var(--accent-green); margin-bottom: 10px;">➕ Добавить новую тему</h3>
-      <div style="display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;">
+      <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
         <input type="text" id="newTopicInput" placeholder="Введите тему дебатов..." style="margin-bottom: 0; flex: 1;">
+        <input type="number" id="newTopicLimit" placeholder="Лимит (0 = без лимита)" min="0" value="0" style="width: 160px; margin-bottom: 0;">
         <button class="btn" onclick="addNewRoom()" style="background: var(--accent-green); color: white; white-space: nowrap;">Создать</button>
       </div>
 
-      <h3 style="color: var(--accent-gold); margin-bottom: 10px;">🏆 Competition Mode (Баллы команд)</h3>
+      <h3 style="color: var(--accent-gold); margin-bottom: 10px; margin-top: 25px;">🏆 Competition Mode (Баллы команд)</h3>
       <p style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 15px;">Начисляйте баллы командам Защиты или Атаки в реальном времени.</p>
       <div id="adminRoomsControl"></div>
 
@@ -215,9 +221,9 @@
   let userRef = null;
 
   const defaultRooms = {
-    room1: { topic: "ИИ заменит большинство профессий через 10 лет", scores: { protect: 0, attack: 0 } },
-    room2: { topic: "Оценки в школе не отражают реальных знаний", scores: { protect: 0, attack: 0 } },
-    room3: { topic: "Социальные сети приносят больше вреда, чем пользы", scores: { protect: 0, attack: 0 } }
+    room1: { topic: "ИИ заменит большинство профессий через 10 лет", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} },
+    room2: { topic: "Оценки в школе не отражают реальных знаний", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} },
+    room3: { topic: "Социальные сети приносят больше вреда, чем пользы", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} }
   };
 
   function handleEnter(e) { if(e.key === 'Enter') enterLobby(); }
@@ -267,18 +273,38 @@
           const room = rooms[roomId];
           const protectCount = room.protect ? Object.keys(room.protect).length : 0;
           const attackCount = room.attack ? Object.keys(room.attack).length : 0;
+          const limit = room.limit || 0;
+          const votesCount = room.votes ? Object.keys(room.votes).length : 0;
+          const hasVoted = room.votes && room.votes[currentUser.id];
           const safeTopic = room.topic.replace(/'/g, "\\'");
+
+          let limitText = limit > 0 ? `Лимит участников на команду: ${limit}` : `Без лимита участников`;
 
           roomsListEl.innerHTML += `
             <div class="room-card">
               <div class="room-info">
                 <h3>${room.topic}</h3>
-                <p>Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
+                <p>🛡️ Защита: ${protectCount} | ⚔️ Атака: ${attackCount} &nbsp;|&nbsp; (${limitText})</p>
+                <p style="font-size: 0.85rem; opacity: 0.6; margin-bottom: 0;">👍 Голосов за тему: ${votesCount}</p>
               </div>
-              <button class="btn join-room-btn" onclick="openRoom('${roomId}', '${safeTopic}')">Войти</button>
+              <div class="room-actions">
+                <button class="vote-btn ${hasVoted ? 'voted' : ''}" onclick="toggleVote('${roomId}')">${hasVoted ? '✓ Голос отдан' : '👍 Голосовать'}</button>
+                <button class="btn join-room-btn" onclick="openRoom('${roomId}', '${safeTopic}')">Войти</button>
+              </div>
             </div>
           `;
         });
+      }
+    });
+  }
+
+  function toggleVote(roomId) {
+    const voteRef = db.ref(`rooms/${roomId}/votes/${currentUser.id}`);
+    voteRef.once('value', snapshot => {
+      if (snapshot.exists()) {
+        voteRef.remove();
+      } else {
+        voteRef.set(true);
       }
     });
   }
@@ -294,6 +320,10 @@
 
       const pScore = room.scores && room.scores.protect ? room.scores.protect : 0;
       const aScore = room.scores && room.scores.attack ? room.scores.attack : 0;
+      const limit = room.limit || 0;
+
+      const protectCount = room.protect ? Object.keys(room.protect).length : 0;
+      const attackCount = room.attack ? Object.keys(room.attack).length : 0;
 
       document.getElementById('currentRoomTopic').innerHTML = `
         ${topic}<br>
@@ -301,6 +331,9 @@
           📊 Счёт матча — 🛡️ Защита: ${pScore} | ⚔️ Атака: ${aScore}
         </span>
       `;
+
+      document.getElementById('protectHeaderTitle').innerText = `🛡️ ЗАЩИТА (${protectCount}${limit > 0 ? '/' + limit : ''})`;
+      document.getElementById('attackHeaderTitle').innerText = `⚔️ АТАКА (${attackCount}${limit > 0 ? '/' + limit : ''})`;
 
       renderUsers('protectUsers', room.protect);
       renderUsers('attackUsers', room.attack);
@@ -320,11 +353,29 @@
 
   function joinSide(side) {
     if (!currentRoomId) return;
-    if (userRef) userRef.remove();
 
-    userRef = db.ref(`rooms/${currentRoomId}/${side}/${currentUser.id}`);
-    userRef.set({ name: currentUser.name });
-    userRef.onDisconnect().remove(); 
+    db.ref(`rooms/${currentRoomId}`).once('value', snapshot => {
+      const room = snapshot.val();
+      if (!room) return;
+
+      const limit = room.limit || 0;
+      const sideUsers = room[side] ? Object.keys(room[side]) : [];
+      const currentCount = sideUsers.length;
+
+      // Проверяем, не состоит ли пользователь уже в этой команде
+      const alreadyInThisSide = room[side] && room[side][currentUser.id];
+
+      if (limit > 0 && currentCount >= limit && !alreadyInThisSide) {
+        alert("В этой команде достигнут лимит участников!");
+        return;
+      }
+
+      if (userRef) userRef.remove();
+
+      userRef = db.ref(`rooms/${currentRoomId}/${side}/${currentUser.id}`);
+      userRef.set({ name: currentUser.name });
+      userRef.onDisconnect().remove();
+    });
   }
 
   function leaveRoom() {
@@ -343,7 +394,6 @@
     document.getElementById('lobbyScreen').style.display = 'block';
   }
 
-  // Умный обработчик клика на логотип: 1 клик — на главную, 3 быстрых клика — админка
   let secretClicks = 0;
   let secretTimer = null;
   const ADMIN_SECRET_CODE = "mehr2026";
@@ -383,15 +433,19 @@
 
   function addNewRoom() {
     const topicText = document.getElementById('newTopicInput').value.trim();
+    const limitVal = parseInt(document.getElementById('newTopicLimit').value) || 0;
     if (!topicText) return alert("Введите тему дебатов!");
 
     const newRoomId = 'room_' + Date.now();
     db.ref(`rooms/${newRoomId}`).set({
       topic: topicText,
-      scores: { protect: 0, attack: 0 }
+      scores: { protect: 0, attack: 0 },
+      limit: limitVal,
+      votes: {}
     }, (error) => {
       if (!error) {
         document.getElementById('newTopicInput').value = '';
+        document.getElementById('newTopicLimit').value = '0';
         alert("Тема успешно создана!");
       } else {
         alert("Ошибка при создании темы.");
@@ -404,17 +458,22 @@
       const rooms = snapshot.val();
       const controlEl = document.getElementById('adminRoomsControl');
       if (!controlEl) return;
-      controlEl.innerHTML = `[cite: 1]`;
+      controlEl.innerHTML = '';
 
       if (rooms) {
         Object.keys(rooms).forEach(roomId => {
           const room = rooms[roomId];
           const protectScore = room.scores ? room.scores.protect || 0 : 0;
           const attackScore = room.scores ? room.scores.attack || 0 : 0;
+          const currentLimit = room.limit || 0;
 
           controlEl.innerHTML += `
             <div style="background: rgba(11, 15, 12, 0.9); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);">
               <p style="font-weight: 600; margin-bottom: 8px; color: #fff;">${room.topic}</p>
+              <div style="margin-bottom: 10px; font-size: 0.9rem; opacity: 0.8;">
+                Лимит участников на команду: 
+                <input type="number" id="limit_${roomId}" value="${currentLimit}" min="0" style="width: 80px; padding: 4px 8px; margin-bottom: 0; display: inline-block; height: 30px; font-size: 0.9rem;" onchange="updateLimit('${roomId}', this.value)">
+              </div>
               <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; flex-wrap: wrap; gap: 10px;">
                 <div>
                   🛡️ Защита: <b>${protectScore}</b> 
@@ -435,6 +494,11 @@
     });
   }
 
+  function updateLimit(roomId, newLimit) {
+    const limitNum = parseInt(newLimit) || 0;
+    db.ref(`rooms/${roomId}/limit`).set(limitNum);
+  }
+
   function addScore(roomId, side, delta) {
     const scoreRef = db.ref(`rooms/${roomId}/scores/${side}`);
     scoreRef.transaction(currentScore => (currentScore || 0) + delta);
@@ -448,4 +512,3 @@
 </script>
 </body>
 </html>
-```[cite: 1]
