@@ -194,13 +194,17 @@
 
   function handleEnter(e) { if(e.key === 'Enter') enterLobby(); }
 
-  window.onload = () => {
-  const savedName = localStorage.getItem('debatesUserName');
-  if (savedName) {
-    const input = document.getElementById('userNameInput');
-    if (input) input.value = savedName;
-  }
-};
+  // Автоматически подставляем имя и в инпут, и в память скрипта
+  document.addEventListener('DOMContentLoaded', () => {
+    const savedName = localStorage.getItem('debatesUserName');
+    if (savedName) {
+      const input = document.getElementById('userNameInput');
+      if (input) {
+        input.value = savedName;
+        currentUser.name = savedName; // Сразу сохраняем в объект юзера!
+      }
+    }
+  });
 
 function enterLobby() {
   const nameInput = document.getElementById('userNameInput').value.trim();
