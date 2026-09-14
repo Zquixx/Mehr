@@ -218,11 +218,38 @@ function enterLobby() {
  function initRooms() {
   const roomsRef = db.ref('rooms');
   
-  // Если в базе пусто, записываем темы по умолчанию
   roomsRef.once('value', snapshot => {
     if (!snapshot.exists()) {
       roomsRef.set(defaultRooms);
     }
+  });
+
+  roomsRef.on('value', snapshot => {
+    const rooms = snapshot.val();
+    const roomsListEl = document.getElementById('roomsList');
+    if (!roomsListEl) return;
+    
+    roomsListEl.innerHTML = '';
+
+    if (rooms) {
+      Object.keys(rooms).forEach(roomId => {
+        const room = rooms[roomId];
+        const protectCount = room.protect ? Object.keys(room.protect).length : 0;
+        const attackCount = room.attack ? Object.keys(room.attack).length : 0;
+
+        roomsListEl.innerHTML += `
+          <div class="room-card" style="background: rgba(255,255,255,0.05); padding: 15px; margin-bottom: 15px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <div class="room-info">
+              <h3 style="margin: 0 0 5px 0; color: #fff;">${room.topic}</h3>
+              <p style="margin: 0; opacity: 0.7;">Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
+            </div>
+            <button class="btn" onclick="joinRoom('${roomId}')" style="padding: 8px 16px; cursor: pointer;">Войти</button>
+          </div>
+        `;
+      });
+    }
+  });
+}
   });
 
   // Слушаем изменения комнат в реальном времени
