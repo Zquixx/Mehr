@@ -215,29 +215,61 @@ function enterLobby() {
   initRooms();
 }
 
-  function initRooms() {
-    const roomsRef = db.ref('rooms');
-    
-    roomsRef.once('value', snapshot => {
-      if (!snapshot.exists()) roomsRef.set(defaultRooms);
-    });
+ function initRooms() {
+  const roomsRef = db.ref('rooms');
+  
+  // Если в базе пусто, записываем темы по умолчанию
+  roomsRef.once('value', snapshot => {
+    if (!snapshot.exists()) {
+      roomsRef.set(defaultRooms);
+    }
+  });
 
-    roomsRef.on('value', snapshot => {
-      const rooms = snapshot.val();
-      const roomsListEl = document.getElementById('roomsList');
-      roomsListEl.innerHTML = '';
+  // Слушаем изменения комнат в реальном времени
+  roomsRef.on('value', snapshot => {
+    const rooms = snapshot.val();
+    const roomsListEl = document.getElementById('roomsList');
+    if (!roomsListEl) return;
+    roomsListEl.innerHTML = '';
 
-      if (rooms) {
-        Object.keys(rooms).forEach(roomId => {
-          const room = rooms[roomId];
-          const protectCount = room.protect ? Object.keys(room.protect).length : 0;
-          const attackCount = room.attack ? Object.keys(room.attack).length : 0;
-          
-          roomsListEl.innerHTML += `
-            <div class="room-card">
-              <div class="room-info">
-                <h3>${room.topic}</h3>
-                <p>Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
+    if (rooms) {
+      Object.keys(rooms).forEach(roomId => {
+        const room = rooms[roomId];
+        const protectCount = room.protect ? Object.keys(room.protect).length : 0;
+        const attackCount = room.attack ? Object.keys(room.attack).length : 0;
+
+        roomsListEl.innerHTML += `
+          <div class="room-card">
+            <div class="room-info">
+              <h3>${room.topic}</h3>
+              <p>Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
+            </div>
+            <button class="btn" onclick="joinRoom('${roomId}')">Войти</button>
+          </div>
+        `;
+      });
+    }
+  });
+}
+
+        roomsListEl.innerHTML += `
+          <div class="room-card">
+            <div class="room-info">
+              <h3>${room.topic}</h3>
+              <p>Участников: 🛡️ ${protectCount} | ⚔️ ${attackCount}</p>
+            </div>
+            <button class="btn" onclick="joinRoom('${roomId}')">Войти</button>
+          </div>
+        `;
+      });
+    }
+  });
+}
+      <button class="btn" onclick="joinRoom('${roomId}')">Войти в комнату</button>
+    `;
+    container.appendChild(card);
+  });
+}
               </div>
               <button class="btn join-room-btn" onclick="openRoom('${roomId}', '${room.topic.replace(/'/g, "\\'")}')">Войти</button>
             </div>
