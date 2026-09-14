@@ -278,6 +278,36 @@
     100%{box-shadow:0 0 0 0 rgba(76,175,107,0);}
   }
 
+  .gallery-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+    margin-top:40px;
+  }
+  .photo-card{
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    height:220px;
+    border:1px solid rgba(232,200,116,0.2);
+  }
+  .photo-card .photo-fill{
+    width:100%;height:100%;
+    background-size:cover;background-position:center;
+    transition:transform .5s ease;
+  }
+  .photo-card:hover .photo-fill{transform:scale(1.08);}
+  .photo-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to top, rgba(11,15,12,0.9), transparent);
+    display:flex;align-items:flex-end;
+    padding:15px;
+    opacity:0;
+    transition:opacity .3s ease;
+  }
+  .photo-card:hover .photo-overlay{opacity:1;}
+  .photo-overlay span{font-size:0.9rem;font-weight:600;}
+
   @media (max-width: 768px){
     .hero{height:180vh;}
     .hero-text h1{font-size:1.8rem;}
@@ -307,6 +337,7 @@
   <ul>
     <li><a href="#mission">О нас</a></li>
     <li><a href="#directions">Направления</a></li>
+    <li><a href="#gallery">Галерея</a></li>
     <li><a href="#join">Присоединиться</a></li>
     <li class="login-li"><a class="login-btn" href="https://t.me/MEHRVOLUNTEER" target="_blank"><span class="avatar">Z</span> Войти</a></li>
   </ul>
@@ -372,9 +403,9 @@
         <p>Свет начинается с одного шага</p>
       </div>
 
-      <!-- Главная фигура (человек) с нормальными согнутыми руками -->
+      <!-- Главная фигура (человек) -->
       <div class="goddess" id="goddess">
-        <svg viewBox="0 0 220 400" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 220 420" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="phoneGlow" cx="50%" cy="100%" r="80%">
               <stop offset="0%" stop-color="#8fd3e8"/>
@@ -386,33 +417,23 @@
           <!-- ТЁМНАЯ ВЕРСИЯ -->
           <g id="personDark" style="opacity:1;">
             <circle cx="110" cy="55" r="32" fill="url(#phoneGlow)"/>
-            <!-- Торс -->
-            <path d="M 72 105 L 148 105 L 146 260 L 115 260 L 110 240 L 105 260 L 74 260 Z" fill="#0a120d"/>
-            <!-- Ноги -->
-            <path d="M 74 250 L 104 250 L 104 360 L 74 360 Z M 116 250 L 146 250 L 146 360 L 116 360 Z" fill="#0a120d"/>
-            <!-- Левая рука -->
-            <path d="M 72 110 L 80 135 L 95 155" stroke="#0a120d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <!-- Правая рука -->
-            <path d="M 148 110 L 140 135 L 125 155" stroke="#0a120d" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#0a120d"/>
+            <path d="M 68 112 L 40 148 L 84 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M 152 112 L 180 148 L 136 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </g>
 
           <!-- СВЕТЛАЯ ВЕРСИЯ -->
           <g id="personLight" style="opacity:0;">
             <circle cx="110" cy="55" r="32" fill="#f2f2ea"/>
-            <!-- Торс -->
-            <path d="M 72 105 L 148 105 L 146 260 L 115 260 L 110 240 L 105 260 L 74 260 Z" fill="#f2f2ea"/>
-            <!-- Ноги -->
-            <path d="M 74 250 L 104 250 L 104 360 L 74 360 Z M 116 250 L 146 250 L 146 360 L 116 360 Z" fill="#f2f2ea"/>
-            <!-- Левая рука -->
-            <path d="M 72 110 L 80 135 L 95 155" stroke="#f2f2ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <!-- Правая рука -->
-            <path d="M 148 110 L 140 135 L 125 155" stroke="#f2f2ea" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#f2f2ea"/>
+            <path d="M 68 112 L 46 180 L 52 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M 152 112 L 174 180 L 168 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
           </g>
 
           <!-- ТЕЛЕФОН -->
           <g id="phoneGroup">
-            <rect x="92" y="135" width="36" height="64" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/>
-            <rect id="phoneScreen" x="96" y="139" width="28" height="56" rx="3" fill="#8fd3e8"/>
+            <rect x="90" y="138" width="40" height="68" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/>
+            <rect id="phoneScreen" x="94" y="142" width="32" height="60" rx="3" fill="#8fd3e8"/>
           </g>
         </svg>
       </div>
@@ -453,6 +474,7 @@
   <div class="mission reveal">
     <h2>Наша миссия</h2>
     <p>Mehr — молодёжное волонтёрское объединение, созданное учениками и студентами, которые не хотят ждать, пока изменения начнёт кто-то другой. Мы верим, что забота о людях и природе — это не разовая акция, а привычка, которую можно строить вместе, шаг за шагом, каждую неделю.</p>
+    <p style="margin-top:18px;">Мы не крупная организация с офисом и бюджетом — мы группа, которая начала с малого: один сайт, один Telegram-канал и желание сделать что-то настоящее. Присоединяясь, вы не просто "участвуете в мероприятии" — вы становитесь частью команды, которая планирует, организует и растёт вместе.</p>
   </div>
   <div class="stats reveal">
     <div class="stat"><div class="num">20</div><div class="label">активных волонтёров в команде</div></div>
@@ -470,20 +492,47 @@
     <div class="card reveal">
       <div class="icon">🌳</div>
       <h3>Экология</h3>
-      <p>Высаживаем деревья в парках и на пустырях, убираем мусор с общественных территорий, проводим экологические субботники по выходным.</p>
-      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
+      <p>Высаживаем деревья в парках и на пустырях, убираем мусор с общественных территорий, проводим экологические субботники по выходным. Каждое дерево, которое мы сажаем, отмечаем на карте — так видно реальный результат работы команды.</p>
+      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться в Telegram</a>
     </div>
     <div class="card reveal">
       <div class="icon">🤝</div>
       <h3>Забота о людях</h3>
-      <p>Навещаем пожилых людей, помогаем по хозяйству, разговариваем и просто проводим время рядом, поддерживая эмоционально и практически.</p>
-      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
+      <p>Навещаем пожилых людей, помогаем по хозяйству, разговариваем и просто проводим время рядом. Также поддерживаем людей, переживших ДТП или другие тяжёлые события — эмоционально и практически, без давления и без осуждения.</p>
+      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться в Telegram</a>
+    </div>
+    <div class="card reveal">
+      <div class="icon">💬</div>
+      <h3>Диалог и дебаты</h3>
+      <p>Организуем открытые дебаты и дискуссионные встречи на актуальные темы — учимся аргументировать, слушать оппонента и уважать чужое мнение. Это направление помогает развивать soft skills, полезные и для университета, и для жизни.</p>
+      <a href="debates.html" class="btn">Присоединиться к дебатам</a>
     </div>
     <div class="card reveal">
       <div class="icon">🎓</div>
-      <h3>Образование</h3>
-      <p>Помогаем школьникам разобраться, как поступить в университет — рассказываем про эссе, экзамены, стипендии и волонтёрский опыт.</p>
-      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
+      <h3>Образование и поступление</h3>
+      <p>Помогаем школьникам разобраться, как поступить в университет — рассказываем про эссе, экзамены, стипендии и то, как правильно оформить волонтёрский опыт для заявки. Делимся собственным путём поступления, без платных курсов.</p>
+      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться в Telegram</a>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="info" id="gallery">
+  <div class="mission reveal">
+    <h2>Галерея акций</h2>
+  </div>
+  <div class="gallery-grid reveal">
+    <div class="photo-card">
+      <div class="photo-fill" style="background:url('images/photo1.jpg') center/cover;"></div>
+      <div class="photo-overlay"><span>Форум «Тинчлик Чемпионлари» — выступление команды</span></div>
+    </div>
+    <div class="photo-card">
+      <div class="photo-fill" style="background:url('images/photo2.jpg') center/cover;"></div>
+      <div class="photo-overlay"><span>Наши волонтёры на мероприятии</span></div>
+    </div>
+    <div class="photo-card">
+      <div class="photo-fill" style="background:url('images/photo3.jpg') center/cover;"></div>
+      <div class="photo-overlay"><span>Посадка деревьев с местными жителями</span></div>
     </div>
   </div>
 </section>
@@ -492,14 +541,15 @@
 <section class="info" id="join">
   <div class="mission reveal">
     <h2>Стать частью Mehr</h2>
-    <p>Всё общение, расписание мероприятий и запись на них проходят в нашем Telegram-канале. Напиши нам и начни действовать.</p>
+    <p>Всё общение, расписание мероприятий и запись на них проходят в нашем общем Telegram-канале. Там ты увидишь актуальный план на неделю — например, понедельник это посадка деревьев, вторник это визит к пожилым людям — сможешь выбрать удобный для себя формат и написать организатору напрямую.</p>
+    <p style="margin-top:16px;">Если хочешь предложить свою идею мероприятия или создать собственное направление внутри Mehr — тоже пиши, мы открыты к инициативе каждого участника.</p>
     <br>
-    <a href="https://t.me/MEHRVOLUNTEER" target="_blank" style="display:inline-block;padding:14px 36px;background:var(--accent-gold);color:#0b0f0c;border-radius:30px;text-decoration:none;font-weight:700;">Открыть Telegram</a>
+    <a href="https://t.me/MEHRVOLUNTEER" target="_blank" style="display:inline-block;margin-top:10px;padding:14px 36px;background:var(--accent-gold);color:#0b0f0c;border-radius:30px;text-decoration:none;font-weight:700;">Открыть Telegram</a>
   </div>
 </section>
 
 <footer>
-  © 2026 Mehr. Все права защищены.
+  © 2026 Mehr. Сделано с заботой одним человеком, который верит в большие перемены.
 </footer>
 
 <script>
@@ -574,7 +624,7 @@
   window.addEventListener('scroll', updateScene);
   updateScene();
 
-  const cursorGlow = document.getElementById('cursorGlow');
+  const cursorGlow = document.getElementById('cursorGlow') || document.querySelector('.cursor-glow');
   let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
 
   window.addEventListener('mousemove', (e) => {
