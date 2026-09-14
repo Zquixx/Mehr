@@ -414,12 +414,14 @@
             </radialGradient>
           </defs>
 
-          <!-- ТЁМНАЯ ВЕРСИЯ -->
+          <!-- ТЁМНАЯ ВЕРСИЯ (с прямыми аккуратными плечами и раздельными ногами) -->
           <g id="personDark" style="opacity:1;">
             <circle cx="110" cy="55" r="32" fill="url(#phoneGlow)"/>
-            <path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#0a120d"/>
-            <path d="M 68 112 L 40 148 L 84 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M 152 112 L 180 148 L 136 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <!-- Тело и ровные прямые плечи -->
+            <path d="M72 92 L148 92 L152 230 L132 230 L113 350 L107 350 L88 230 L68 230 Z" fill="#0a120d"/>
+            <!-- Руки по бокам -->
+            <rect x="66" y="98" width="10" height="135" rx="5" fill="#0a120d"/>
+            <rect x="144" y="98" width="10" height="135" rx="5" fill="#0a120d"/>
           </g>
 
           <!-- СВЕТЛАЯ ВЕРСИЯ -->
