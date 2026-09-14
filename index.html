@@ -637,12 +637,22 @@
   window.addEventListener('scroll', updateScene);
   updateScene();
 
-  // курсор-свечение следует за мышью
-  const cursorGlow = document.getElementById('cursorGlow');
-  window.addEventListener('mousemove', (e) => {
-    cursorGlow.style.left = e.clientX + 'px';
-    cursorGlow.style.top = e.clientY + 'px';
-  });
+  // курсор-свечение следует за мышью (оптимизировано)
+const cursorGlow = document.getElementById('cursorGlow') || document.querySelector('.cursor-glow');
+let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+
+window.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+});
+
+function animateCursor() {
+  if (cursorGlow && window.innerWidth > 768) {
+    cursorGlow.style.transform = `translate(${mouseX - 175}px, ${mouseY - 175}px)`;
+  }
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
 
   // Плавное появление секций
   const revealEls = document.querySelectorAll('.reveal');
