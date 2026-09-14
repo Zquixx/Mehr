@@ -117,7 +117,7 @@
 <body>
 
 <nav>
-  <a href="#" class="logo" onclick="handleSecretClick(); return false;" title="" style="user-select: none;">MEHR</a>
+  <a href="#" class="logo" onclick="handleLogoClick(event); return false;" title="" style="user-select: none;">MEHR</a>
   <a href="index.html" class="back-btn">← Вернуться на главную</a>
 </nav>
 
@@ -343,19 +343,25 @@
     document.getElementById('lobbyScreen').style.display = 'block';
   }
 
+  // Умный обработчик клика на логотип: 1 клик — на главную, 3 быстрых клика — админка
   let secretClicks = 0;
   let secretTimer = null;
   const ADMIN_SECRET_CODE = "mehr2026";
 
-  function handleSecretClick() {
+  function handleLogoClick(event) {
     secretClicks++;
     clearTimeout(secretTimer);
-    secretTimer = setTimeout(() => { secretClicks = 0; }, 1000);
 
     if (secretClicks >= 3) {
       secretClicks = 0;
-      clearTimeout(secretTimer);
       toggleAdminPanel();
+    } else {
+      secretTimer = setTimeout(() => {
+        if (secretClicks === 1) {
+          window.location.href = 'index.html';
+        }
+        secretClicks = 0;
+      }, 350);
     }
   }
 
@@ -398,7 +404,7 @@
       const rooms = snapshot.val();
       const controlEl = document.getElementById('adminRoomsControl');
       if (!controlEl) return;
-      controlEl.innerHTML = '';
+      controlEl.innerHTML = `[cite: 1]`;
 
       if (rooms) {
         Object.keys(rooms).forEach(roomId => {
@@ -442,3 +448,4 @@
 </script>
 </body>
 </html>
+```[cite: 1]
