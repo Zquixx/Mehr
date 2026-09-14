@@ -194,16 +194,26 @@
 
   function handleEnter(e) { if(e.key === 'Enter') enterLobby(); }
 
-  function enterLobby() {
-    const nameInput = document.getElementById('userNameInput').value.trim();
-    if (!nameInput) return alert("Пожалуйста, введи имя!");
-    
-    currentUser.name = nameInput;
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('lobbyScreen').style.display = 'block';
-    
-    initRooms();
+  window.onload = () => {
+  const savedName = localStorage.getItem('debatesUserName');
+  if (savedName) {
+    const input = document.getElementById('userNameInput');
+    if (input) input.value = savedName;
   }
+};
+
+function enterLobby() {
+  const nameInput = document.getElementById('userNameInput').value.trim();
+  if (!nameInput) return alert("Пожалуйста, введи имя!");
+  
+  currentUser.name = nameInput;
+  localStorage.setItem('debatesUserName', nameInput);
+  
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('lobbyScreen').style.display = 'block';
+
+  initRooms();
+}
 
   function initRooms() {
     const roomsRef = db.ref('rooms');
