@@ -40,8 +40,9 @@
     margin-bottom: 50px;
   }
   nav .logo { font-weight: 700; font-size: 1.4rem; letter-spacing: 2px; color: var(--accent-gold); text-decoration: none; cursor: pointer; user-select: none; }
-  nav .back-btn { color: var(--text-light); text-decoration: none; opacity: 0.8; transition: opacity .3s; }
-  nav .back-btn:hover { opacity: 1; color: var(--accent-gold); }
+  .nav-right { display: flex; align-items: center; gap: 20px; }
+  nav .back-btn, nav .profile-link { color: var(--text-light); text-decoration: none; opacity: 0.8; transition: opacity .3s; cursor: pointer; background: none; border: none; font-size: 1rem; font-family: inherit; }
+  nav .back-btn:hover, nav .profile-link:hover { opacity: 1; color: var(--accent-gold); }
 
   .container {
     width: 100%; max-width: 900px;
@@ -70,7 +71,7 @@
   }
   .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(232,200,116,0.3); }
 
-  #lobbyScreen { display: none; }
+  #lobbyScreen, #profileScreen { display: none; }
   .room-card {
     background: rgba(11, 15, 12, 0.8);
     border: 1px solid rgba(232, 200, 116, 0.1);
@@ -89,15 +90,18 @@
   #roomScreen { display: none; }
   .room-header { text-align: center; margin-bottom: 30px; }
   .room-header h2 { color: var(--text-light); }
+  .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-top: 8px; }
+  .status-waiting { background: rgba(232, 200, 116, 0.2); color: var(--accent-gold); }
+  .status-active { background: rgba(76, 175, 107, 0.2); color: var(--accent-green); }
+  .status-ended { background: rgba(239, 68, 68, 0.2); color: var(--attack-red); }
+
   .sides-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  
   .side {
     padding: 20px; border-radius: 12px;
     display: flex; flex-direction: column; align-items: center;
   }
   .side.protect { background: rgba(59, 130, 246, 0.1); border: 1px solid var(--protect-blue); }
   .side.attack { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--attack-red); }
-  
   .side h3 { margin-bottom: 15px; font-size: 1.2rem; text-align: center; }
   .side.protect h3 { color: var(--protect-blue); }
   .side.attack h3 { color: var(--attack-red); }
@@ -112,7 +116,26 @@
     border-radius: 8px; margin-bottom: 8px; text-align: center; font-size: 0.95rem;
   }
 
-  .leave-btn { background: transparent; border: 1px solid var(--text-light); color: var(--text-light); margin-top: 30px; }
+  .room-footer-btns { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+  .leave-btn { background: transparent; border: 1px solid var(--text-light); color: var(--text-light); }
+
+  .profile-card-box {
+    background: rgba(11, 15, 12, 0.9);
+    border: 1px solid var(--accent-gold);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 450px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .profile-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 25px 0;
+  }
+  .stat-box {
+    background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;
+  }
+  .stat-box h4 { font-size: 1.5rem; color: var(--accent-gold); margin-bottom: 5px; }
+  .stat-box span { font-size: 0.85rem; opacity: 0.7; }
 
   @media (max-width: 600px) {
     .sides-container { grid-template-columns: 1fr; }
@@ -123,7 +146,10 @@
 
 <nav>
   <a href="#" class="logo" onclick="handleLogoClick(event); return false;">MEHR</a>
-  <a href="index.html" class="back-btn">← Вернуться на главную</a>
+  <div class="nav-right" id="navRightSection" style="display: none;">
+    <button class="profile-link" onclick="openProfile()">Мой Профиль</button>
+    <a href="index.html" class="back-btn">На главную</a>
+  </div>
 </nav>
 
 <div class="container">
@@ -144,10 +170,33 @@
     <div id="roomsList"></div>
   </div>
 
+  <!-- Профиль пользователя -->
+  <div id="profileScreen">
+    <h1>Личный Профиль</h1>
+    <div class="profile-card-box">
+      <h2 id="profileUsername" style="color: var(--text-light); margin-bottom: 10px;">Имя</h2>
+      <p style="opacity: 0.7; font-size: 0.9rem;">Участник платформы Mehr Debates</p>
+      
+      <div class="profile-stats">
+        <div class="stat-box">
+          <h4 id="statParticipated">0</h4>
+          <span>Участий в дебатах</span>
+        </div>
+        <div class="stat-box">
+          <h4 id="statWon">0</h4>
+          <span>Побед</span>
+        </div>
+      </div>
+
+      <button class="btn" onclick="backToLobbyFromProfile()">Назад к лобби</button>
+    </div>
+  </div>
+
   <!-- Внутри комнаты дебатов -->
   <div id="roomScreen">
     <div class="room-header">
       <h2 id="currentRoomTopic">Тема загружается...</h2>
+      <div id="roomStatusBadge" class="status-badge status-waiting">Ожидание начала</div>
     </div>
     
     <div class="sides-container">
@@ -164,7 +213,7 @@
       </div>
     </div>
     
-    <div style="text-align: center;">
+    <div class="room-footer-btns">
       <button class="btn leave-btn" onclick="leaveRoom()">Выйти в лобби</button>
     </div>
   </div>
@@ -189,8 +238,7 @@
         <button class="btn" onclick="addNewRoom()" style="background: var(--accent-green); color: white; white-space: nowrap;">Создать</button>
       </div>
 
-      <h3 style="color: var(--accent-gold); margin-bottom: 10px; margin-top: 25px;">🏆 Competition Mode (Баллы команд)</h3>
-      <p style="opacity: 0.7; font-size: 0.9rem; margin-bottom: 15px;">Начисляйте баллы командам Защиты или Атаки в реальном времени.</p>
+      <h3 style="color: var(--accent-gold); margin-bottom: 10px; margin-top: 25px;">⚡ Управление комнатами (Статусы и Победители)</h3>
       <div id="adminRoomsControl"></div>
 
       <div style="text-align: center; margin-top: 20px;">
@@ -221,21 +269,21 @@
   let userRef = null;
 
   const defaultRooms = {
-    room1: { topic: "ИИ заменит большинство профессий через 10 лет", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} },
-    room2: { topic: "Оценки в школе не отражают реальных знаний", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} },
-    room3: { topic: "Социальные сети приносят больше вреда, чем пользы", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} }
+    room1: { topic: "ИИ заменит большинство профессий через 10 лет", status: "waiting", winner: "", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} },
+    room2: { topic: "Оценки в школе не отражают реальных знаний", status: "waiting", winner: "", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} },
+    room3: { topic: "Социальные сети приносят больше вреда, чем пользы", status: "waiting", winner: "", scores: { protect: 0, attack: 0 }, limit: 0, votes: {} }
   };
 
   function handleEnter(e) { if(e.key === 'Enter') enterLobby(); }
 
   document.addEventListener('DOMContentLoaded', () => {
+    const savedId = localStorage.getItem('debatesUserId');
     const savedName = localStorage.getItem('debatesUserName');
-    if (savedName) {
+    if (savedId && savedName) {
+      currentUser.id = savedId;
+      currentUser.name = savedName;
       const input = document.getElementById('userNameInput');
-      if (input) {
-        input.value = savedName;
-        currentUser.name = savedName;
-      }
+      if (input) input.value = savedName;
     }
   });
 
@@ -244,10 +292,14 @@
     if (!nameInput) return alert("Пожалуйста, введи имя!");
     
     currentUser.name = nameInput;
+    localStorage.setItem('debatesUserId', currentUser.id);
     localStorage.setItem('debatesUserName', nameInput);
+
+    db.ref(`users/${currentUser.id}`).update({ name: currentUser.name });
     
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('lobbyScreen').style.display = 'block';
+    document.getElementById('navRightSection').style.display = 'flex';
 
     initRooms();
   }
@@ -278,17 +330,20 @@
           const hasVoted = room.votes && room.votes[currentUser.id];
           const safeTopic = room.topic.replace(/'/g, "\\'");
 
-          let limitText = limit > 0 ? `Лимит участников на команду: ${limit}` : `Без лимита участников`;
+          let statusLabel = '<span style="color:var(--accent-gold);">Ожидание</span>';
+          if (room.status === 'active') statusLabel = '<span style="color:var(--accent-green);">Идут дебаты ⚡</span>';
+          if (room.status === 'ended') statusLabel = `<span style="color:var(--attack-red);">Завершено (Победитель: ${room.winner || 'Ничья'})</span>`;
+
+          let limitText = limit > 0 ? `Лимит: ${limit}` : `Без лимита`;
 
           roomsListEl.innerHTML += `
             <div class="room-card">
               <div class="room-info">
                 <h3>${room.topic}</h3>
-                <p>🛡️ Защита: ${protectCount} | ⚔️ Атака: ${attackCount} &nbsp;|&nbsp; (${limitText})</p>
-                <p style="font-size: 0.85rem; opacity: 0.6; margin-bottom: 0;">👍 Голосов за тему: ${votesCount}</p>
+                <p>Статус: ${statusLabel} &nbsp;|&nbsp; 🛡️ ${protectCount} | ⚔️ ${attackCount} (${limitText})</p>
               </div>
               <div class="room-actions">
-                <button class="vote-btn ${hasVoted ? 'voted' : ''}" onclick="toggleVote('${roomId}')">${hasVoted ? '✓ Голос отдан' : '👍 Голосовать'}</button>
+                <button class="vote-btn ${hasVoted ? 'voted' : ''}" onclick="toggleVote('${roomId}')">${hasVoted ? '✓ Голос' : '👍 Тема'}</button>
                 <button class="btn join-room-btn" onclick="openRoom('${roomId}', '${safeTopic}')">Войти</button>
               </div>
             </div>
@@ -312,6 +367,7 @@
   function openRoom(roomId, topic) {
     currentRoomId = roomId;
     document.getElementById('lobbyScreen').style.display = 'none';
+    document.getElementById('profileScreen').style.display = 'none';
     document.getElementById('roomScreen').style.display = 'block';
 
     db.ref(`rooms/${roomId}`).on('value', snapshot => {
@@ -325,10 +381,22 @@
       const protectCount = room.protect ? Object.keys(room.protect).length : 0;
       const attackCount = room.attack ? Object.keys(room.attack).length : 0;
 
+      const badge = document.getElementById('roomStatusBadge');
+      if (room.status === 'waiting') {
+        badge.className = "status-badge status-waiting";
+        badge.innerText = "Ожидание начала дебатов";
+      } else if (room.status === 'active') {
+        badge.className = "status-badge status-active";
+        badge.innerText = "⚡ Дебаты идут в реальном времени";
+      } else if (room.status === 'ended') {
+        badge.className = "status-badge status-ended";
+        badge.innerText = `🏁 Дебаты завершены. Победитель: ${room.winner || 'Не указан'}`;
+      }
+
       document.getElementById('currentRoomTopic').innerHTML = `
         ${topic}<br>
         <span style="font-size: 1rem; color: var(--accent-gold); font-weight: normal; display: block; margin-top: 8px;">
-          📊 Счёт матча — 🛡️ Защита: ${pScore} | ⚔️ Атака: ${aScore}
+          📊 Счёт — 🛡️ Защита: ${pScore} | ⚔️ Атака: ${aScore}
         </span>
       `;
 
@@ -358,11 +426,14 @@
       const room = snapshot.val();
       if (!room) return;
 
+      if (room.status === 'ended') {
+        alert("Эти дебаты уже завершены!");
+        return;
+      }
+
       const limit = room.limit || 0;
       const sideUsers = room[side] ? Object.keys(room[side]) : [];
       const currentCount = sideUsers.length;
-
-      // Проверяем, не состоит ли пользователь уже в этой команде
       const alreadyInThisSide = room[side] && room[side][currentUser.id];
 
       if (limit > 0 && currentCount >= limit && !alreadyInThisSide) {
@@ -375,6 +446,14 @@
       userRef = db.ref(`rooms/${currentRoomId}/${side}/${currentUser.id}`);
       userRef.set({ name: currentUser.name });
       userRef.onDisconnect().remove();
+
+      const participationRef = db.ref(`users/${currentUser.id}/participatedRooms/${currentRoomId}`);
+      participationRef.once('value', snap => {
+        if (!snap.exists()) {
+          participationRef.set(true);
+          db.ref(`users/${currentUser.id}/participatedCount`).transaction(c => (c || 0) + 1);
+        }
+      });
     });
   }
 
@@ -394,6 +473,25 @@
     document.getElementById('lobbyScreen').style.display = 'block';
   }
 
+  function openProfile() {
+    document.getElementById('lobbyScreen').style.display = 'none';
+    document.getElementById('roomScreen').style.display = 'none';
+    document.getElementById('profileScreen').style.display = 'block';
+
+    document.getElementById('profileUsername').innerText = currentUser.name;
+
+    db.ref(`users/${currentUser.id}`).once('value', snapshot => {
+      const data = snapshot.val() || {};
+      document.getElementById('statParticipated').innerText = data.participatedCount || 0;
+      document.getElementById('statWon').innerText = data.wonCount || 0;
+    });
+  }
+
+  function backToLobbyFromProfile() {
+    document.getElementById('profileScreen').style.display = 'none';
+    document.getElementById('lobbyScreen').style.display = 'block';
+  }
+
   let secretClicks = 0;
   let secretTimer = null;
   const ADMIN_SECRET_CODE = "mehr2026";
@@ -405,7 +503,7 @@
     if (secretClicks >= 3) {
       secretClicks = 0;
       toggleAdminPanel();
-    } else {
+        } else {
       secretTimer = setTimeout(() => {
         if (secretClicks === 1) {
           window.location.href = 'index.html';
@@ -439,6 +537,8 @@
     const newRoomId = 'room_' + Date.now();
     db.ref(`rooms/${newRoomId}`).set({
       topic: topicText,
+      status: "waiting",
+      winner: "",
       scores: { protect: 0, attack: 0 },
       limit: limitVal,
       votes: {}
@@ -447,8 +547,6 @@
         document.getElementById('newTopicInput').value = '';
         document.getElementById('newTopicLimit').value = '0';
         alert("Тема успешно создана!");
-      } else {
-        alert("Ошибка при создании темы.");
       }
     });
   }
@@ -465,16 +563,20 @@
           const room = rooms[roomId];
           const protectScore = room.scores ? room.scores.protect || 0 : 0;
           const attackScore = room.scores ? room.scores.attack || 0 : 0;
-          const currentLimit = room.limit || 0;
 
           controlEl.innerHTML += `
-            <div style="background: rgba(11, 15, 12, 0.9); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);">
-              <p style="font-weight: 600; margin-bottom: 8px; color: #fff;">${room.topic}</p>
-              <div style="margin-bottom: 10px; font-size: 0.9rem; opacity: 0.8;">
-                Лимит участников на команду: 
-                <input type="number" id="limit_${roomId}" value="${currentLimit}" min="0" style="width: 80px; padding: 4px 8px; margin-bottom: 0; display: inline-block; height: 30px; font-size: 0.9rem;" onchange="updateLimit('${roomId}', this.value)">
+            <div style="background: rgba(11, 15, 12, 0.9); padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1);">
+              <p style="font-weight: 600; margin-bottom: 5px; color: #fff;">${room.topic}</p>
+              <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 10px;">Статус: <b>${room.status}</b> | Победитель: <b>${room.winner || 'Нет'}</b></p>
+              
+              <div style="display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap;">
+                <button class="btn" style="padding: 6px 12px; font-size: 0.85rem; background: var(--accent-green); color:#fff;" onclick="setRoomStatus('${roomId}', 'active')">⚡ Начать дебат</button>
+                <button class="btn" style="padding: 6px 12px; font-size: 0.85rem; background: var(--attack-red); color:#fff;" onclick="setRoomStatus('${roomId}', 'ended')">🏁 Завершить</button>
+                <button class="btn" style="padding: 6px 12px; font-size: 0.85rem; background: var(--protect-blue); color:#fff;" onclick="declareWinner('${roomId}', 'Защита')">🏆 Победитель: Защита</button>
+                <button class="btn" style="padding: 6px 12px; font-size: 0.85rem; background: var(--protect-blue); color:#fff;" onclick="declareWinner('${roomId}', 'Атака')">🏆 Победитель: Атака</button>
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; flex-wrap: wrap; gap: 10px;">
+
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; flex-wrap: wrap; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
                 <div>
                   🛡️ Защита: <b>${protectScore}</b> 
                   <button onclick="addScore('${roomId}', 'protect', 1)" style="padding: 2px 8px; cursor: pointer;">+</button>
@@ -494,9 +596,32 @@
     });
   }
 
-  function updateLimit(roomId, newLimit) {
-    const limitNum = parseInt(newLimit) || 0;
-    db.ref(`rooms/${roomId}/limit`).set(limitNum);
+  function setRoomStatus(roomId, status) {
+    db.ref(`rooms/${roomId}/status`).set(status);
+  }
+
+  function declareWinner(roomId, sideName) {
+    db.ref(`rooms/${roomId}`).update({
+      status: "ended",
+      winner: sideName
+    });
+
+    const sideKey = sideName === 'Защита' ? 'protect' : 'attack';
+    db.ref(`rooms/${roomId}/${sideKey}`).once('value', snapshot => {
+      const winners = snapshot.val();
+      if (winners) {
+        Object.keys(winners).forEach(userId => {
+          const userWinRef = db.ref(`users/${userId}/wonRooms/${roomId}`);
+          userWinRef.once('value', snap => {
+            if (!snap.exists()) {
+              userWinRef.set(true);
+              db.ref(`users/${userId}/wonCount`).transaction(c => (c || 0) + 1);
+            }
+          });
+        });
+      }
+    });
+    alert(`Победа команды "${sideName}" официально объявлена! Участники получили победу в профиль.`);
   }
 
   function addScore(roomId, side, delta) {
@@ -512,3 +637,4 @@
 </script>
 </body>
 </html>
+
