@@ -351,13 +351,14 @@
 </div>
 
 <nav>
-  <div class="logo">MEHR</div>
+  <div class="logo"><a href="index.html" style="color:var(--accent-gold); text-decoration:none;">MEHR</a></div>
   <ul>
-    <li><a href="#mission">О нас</a></li>
-    <li><a href="#directions">Направления</a></li>
-    <li><a href="#gallery">Галерея</a></li>
+    <li><a href="index.html#mission">О нас</a></li>
+    <li><a href="index.html#directions">Направления</a></li>
+    <li><a href="index.html#gallery">Галерея</a></li>
+    <li><a href="debates.html">Дебаты</a></li>
     <li><a href="#profileSection" id="navProfileLink" style="display:none;">Профиль</a></li>
-    <li><a href="#join">Присоединиться</a></li>
+    <li><a href="index.html#join">Присоединиться</a></li>
     <li class="login-li"><a class="login-btn" id="loginToggleBtn" href="#"><span class="avatar">Z</span> Войти</a></li>
   </ul>
 </nav>
@@ -412,7 +413,7 @@
   <div class="mission reveal">
     <h2>Наша миссия</h2>
     <p>Mehr — молодёжное волонтёрское объединение, созданное учениками и студентами, которые не хотят ждать, пока изменения начнёт кто-то другой.</p>
-    <p style="margin-top:18px;">Мы не крупная организация с офисом и бюджетом — мы группа, которая начала с малого: один сайт, один Telegram-канал и желание сделать что-то настоящее.</p>
+   <p style="margin-top:18px;">Мы не крупная организация с офисом и бюджетом — мы группа, которая начала с малого: один сайт, один Telegram-канал и желание сделать что-то настоящее.</p>
   </div>
   <div class="stats reveal">
     <div class="stat"><div class="num">20</div><div class="label">активных волонтёров в команде</div></div>
@@ -421,7 +422,7 @@
   </div>
 </section>
 
-<!-- ЛИЧНЫЙ КАБИНЕТ / ПРОФИЛЬ (НОВЫЙ БЛОК) -->
+<!-- ЛИЧНЫЙ КАБИНЕТ / ПРОФИЛЬ -->
 <section class="info" id="profileSection" style="display:none;">
   <div class="profile-card reveal">
     <h2 style="color:var(--accent-gold); margin-bottom:10px;">Личный кабинет</h2>
@@ -525,7 +526,6 @@
     authSwitch.innerText = isLogin ? 'Нет аккаунта? Зарегистрируйся' : 'Уже есть аккаунт? Войти';
   };
 
-  // Безопасная функция очистки текста от XSS
   function sanitize(str) {
     const temp = document.createElement('div');
     temp.textContent = str;
@@ -548,7 +548,6 @@
     } else {
       auth.createUserWithEmailAndPassword(email, pass)
         .then((userCredential) => {
-          // При регистрации создаем узел пользователя в базе данных с дефолтными значениями
           const user = userCredential.user;
           const cleanEmail = sanitize(user.email);
           db.ref('users/' + user.uid).set({
@@ -563,10 +562,8 @@
     }
   }
 
-  // Отслеживание состояния пользователя и синхронизация профиля
   auth.onAuthStateChanged(user => {
     if (user) {
-      // Пользователь вошел
       let firstLetter = user.email.charAt(0).toUpperCase();
       loginToggleBtn.innerHTML = `<span class="avatar">${firstLetter}</span> Выйти`;
       loginToggleBtn.onclick = (e) => {
@@ -574,11 +571,9 @@
         auth.signOut();
       };
       
-      // Показываем ссылку на профиль в навигации и сам блок профиля
       if(navProfileLink) navProfileLink.style.display = 'block';
       if(profileSection) profileSection.style.display = 'block';
 
-      // Подтягиваем данные профиля из Realtime Database
       const userRef = db.ref('users/' + user.uid);
       userRef.on('value', (snapshot) => {
         const data = snapshot.val();
@@ -587,7 +582,6 @@
           profileWins.textContent = data.wins || 0;
           profileParticipations.textContent = data.participations || 0;
         } else {
-          // Если узел по какой-то причине не был создан при регистрации
           userRef.set({
             email: user.email,
             wins: 0,
@@ -598,21 +592,17 @@
       });
 
     } else {
-      // Пользователь не вошел
       loginToggleBtn.innerHTML = `<span class="avatar">Z</span> Войти`;
       loginToggleBtn.onclick = (e) => {
         e.preventDefault();
         toggleAuthModal(true);
       };
 
-      // Скрываем блок профиля
       if(navProfileLink) navProfileLink.style.display = 'none';
       if(profileSection) profileSection.style.display = 'none';
     }
   });
 
-
-  /* ---------------- АНИМАЦИИ SCROLL / СЦЕНЫ ---------------- */
   const heroScene = document.getElementById('heroScene');
   const sunWrap = document.getElementById('sunWrap');
   const sunRays = document.querySelectorAll('#sunRays line');
