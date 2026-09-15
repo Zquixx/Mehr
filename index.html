@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mehr — Волонтёрское объединение</title>
+
+<!-- Подключение Firebase SDK (Compat v9) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
 <style>
   :root{
     --bg-dark:#0b0f0c;
@@ -41,6 +46,7 @@
     color:var(--accent-gold)!important;
     font-weight:600;font-size:0.9rem!important;
     opacity:1!important;
+    cursor:pointer;
     transition:background .3s, color .3s;
   }
   .login-btn:hover{
@@ -54,11 +60,46 @@
     font-size:0.7rem;font-weight:700;color:#0b0f0c;
   }
 
-  /* HERO / SCROLL SCENE */
-  .hero{
-    height:300vh;
-    position:relative;
+  /* AUTH MODAL */
+  .auth-modal {
+    display:none; 
+    position:fixed; inset:0; 
+    background:rgba(0,0,0,0.8); 
+    z-index:1000; 
+    justify-content:center; align-items:center; 
+    backdrop-filter:blur(5px);
   }
+  .auth-box {
+    background:var(--bg-mid); 
+    border:1px solid var(--accent-gold); 
+    padding:30px; border-radius:16px; 
+    width:90%; max-width:400px; 
+    text-align:center;
+    box-shadow:0 8px 32px 0 rgba(0,0,0,0.5);
+  }
+  .auth-box h2 { color:var(--accent-gold); margin-bottom:20px; }
+  .auth-box input {
+    width:100%; padding:12px; margin-bottom:15px; 
+    border-radius:8px; border:1px solid var(--accent-green); 
+    background:#0b0f0c; color:white; outline:none;
+  }
+  .auth-btn {
+    width:100%; padding:12px; 
+    background:var(--accent-green); color:black; 
+    font-weight:bold; border:none; border-radius:8px; 
+    cursor:pointer; margin-bottom:15px; transition:0.3s;
+  }
+  .auth-btn:hover { background:#5fd684; }
+  .auth-switch { color:var(--accent-gold); cursor:pointer; font-size:0.9rem; opacity:0.8; }
+  .auth-switch:hover { opacity:1; text-decoration:underline; }
+  .close-modal {
+    color:white; float:right; cursor:pointer; 
+    font-size:1.5rem; margin-top:-20px; margin-right:-10px; opacity:0.7;
+  }
+  .close-modal:hover { opacity:1; }
+
+  /* HERO / SCROLL SCENE */
+  .hero{ height:300vh; position:relative; }
   .hero-sticky{
     position:sticky;top:0;height:100vh;
     display:flex;align-items:center;justify-content:center;
@@ -69,42 +110,26 @@
     position:relative;width:100%;height:100%;
     display:flex;align-items:center;justify-content:center;
   }
-  .goddess{
-    position:relative;
-    width:180px;height:380px;
-    z-index:3;
-  }
+  .goddess{ position:relative; width:180px;height:380px; z-index:3; }
   .goddess svg{width:100%;height:100%;display:block;}
   
   .sun-wrap{
-    position:absolute;
-    top:3%;right:3%;
-    width:140px;height:140px;
-    opacity:0;
-    z-index:1;
-    filter:drop-shadow(0 0 30px rgba(232,200,116,0.5));
+    position:absolute; top:3%;right:3%; width:140px;height:140px;
+    opacity:0; z-index:1; filter:drop-shadow(0 0 30px rgba(232,200,116,0.5));
   }
   .sun-wrap svg{width:100%;height:100%;}
   
   .grid-overlay{
     position:absolute;inset:0;
-    background-image:
-      linear-gradient(rgba(232,200,116,0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(232,200,116,0.05) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(232,200,116,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(232,200,116,0.05) 1px, transparent 1px);
     background-size:60px 60px;
     mask-image:radial-gradient(circle at 50% 50%, black 0%, transparent 75%);
-    pointer-events:none;
-    z-index:0;
+    pointer-events:none; z-index:0;
   }
   .particle{
-    position:absolute;
-    width:4px;height:4px;
-    border-radius:50%;
-    background:var(--accent-gold);
-    opacity:0.4;
-    pointer-events:none;
-    animation:float 8s ease-in-out infinite;
-    z-index:1;
+    position:absolute; width:4px;height:4px; border-radius:50%;
+    background:var(--accent-gold); opacity:0.4; pointer-events:none;
+    animation:float 8s ease-in-out infinite; z-index:1;
   }
   @keyframes float{
     0%,100%{transform:translateY(0) translateX(0);opacity:0.2;}
@@ -112,47 +137,34 @@
   }
   
   .ruin{
-    position:absolute;
-    bottom:10%;left:6%;
-    width:260px;height:220px;
-    opacity:0.55;
-    z-index:0;
+    position:absolute; bottom:10%;left:6%; width:260px;height:220px;
+    opacity:0.55; z-index:0;
   }
   .ruin svg{width:100%;height:100%;display:block;}
   
   .sun-light{
     position:absolute;inset:0;
     background:linear-gradient(225deg, rgba(232,200,116,0.22) 0%, rgba(232,200,116,0) 45%);
-    opacity:0;
-    pointer-events:none;
-    z-index:0;
+    opacity:0; pointer-events:none; z-index:0;
   }
   
   .notebook{
-    position:absolute;
-    width:110px;height:150px;
-    opacity:0.35;
-    z-index:0;
+    position:absolute; width:110px;height:150px; opacity:0.35; z-index:0;
   }
   .notebook svg{width:100%;height:100%;display:block;}
-  .notebook-line{
-    stroke-dasharray:80;
-    stroke-dashoffset:80;
-  }
+  .notebook-line{ stroke-dasharray:80; stroke-dashoffset:80; }
   
   .ground{
     position:absolute;bottom:0;left:0;right:0;height:35%;
     background:linear-gradient(to top, #1c140c, transparent);
   }
   .tree{
-    position:absolute;bottom:8%;
-    width:40px;height:80px;
+    position:absolute;bottom:8%; width:40px;height:80px;
     opacity:0;transform:translateY(40px) scale(0.6);
   }
   .tree svg{width:100%;height:100%;}
   .house{
-    position:absolute;bottom:9%;
-    width:70px;height:70px;
+    position:absolute;bottom:9%; width:70px;height:70px;
     opacity:0;transform:translateY(50px) scale(0.5);
   }
   .house svg{width:100%;height:100%;}
@@ -163,14 +175,12 @@
   }
   .hero-text h1{
     font-size:2.4rem;font-weight:700;letter-spacing:1px;
-    color:var(--accent-gold);
-    text-shadow:0 0 20px rgba(232,200,116,0.4);
+    color:var(--accent-gold); text-shadow:0 0 20px rgba(232,200,116,0.4);
   }
   .hero-text p{margin-top:10px;font-size:1.1rem;opacity:0.8;}
   .scroll-hint{
     position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
-    font-size:0.85rem;opacity:0.6;
-    animation:bounce 2s infinite;
+    font-size:0.85rem;opacity:0.6; animation:bounce 2s infinite;
   }
   @keyframes bounce{
     0%,100%{transform:translate(-50%,0);}
@@ -178,13 +188,8 @@
   }
 
   /* SECTIONS */
-  section.info{
-    padding:100px 10%;
-    max-width:1100px;margin:0 auto;
-  }
-  .mission{
-    text-align:center;
-  }
+  section.info{ padding:100px 10%; max-width:1100px;margin:0 auto; }
+  .mission{ text-align:center; }
   .mission h2{font-size:2rem;color:var(--accent-gold);margin-bottom:20px;}
   .mission p{font-size:1.1rem;line-height:1.7;opacity:0.85;max-width:700px;margin:0 auto;}
 
@@ -201,39 +206,26 @@
     gap:30px;margin-top:80px;
   }
   .card{
-    background:rgba(18,36,26,0.4);
-    backdrop-filter:blur(12px);
-    border-radius:16px;
-    padding:35px 25px;
-    text-align:center;
-    border:1px solid rgba(232,200,116,0.2);
-    box-shadow:0 8px 32px 0 rgba(0,0,0,0.37);
+    background:rgba(18,36,26,0.4); backdrop-filter:blur(12px);
+    border-radius:16px; padding:35px 25px; text-align:center;
+    border:1px solid rgba(232,200,116,0.2); box-shadow:0 8px 32px 0 rgba(0,0,0,0.37);
     transition:transform .3s, box-shadow .3s, border-color .3s;
   }
   .card:hover{
-    transform:translateY(-8px);
-    border-color:var(--accent-gold);
+    transform:translateY(-8px); border-color:var(--accent-gold);
     box-shadow:0 10px 30px rgba(232,200,116,0.15);
   }
   .card .icon{font-size:2.4rem;margin-bottom:15px;}
   .card h3{color:var(--accent-gold);margin-bottom:10px;font-size:1.2rem;}
   .card p{opacity:0.75;font-size:0.95rem;line-height:1.5;margin-bottom:20px;}
   .card a{
-    display:inline-block;
-    padding:10px 22px;
-    background:var(--accent-green);
-    color:#0b0f0c;
-    border-radius:30px;
-    text-decoration:none;
-    font-weight:600;
-    font-size:0.9rem;
-    transition:background .3s;
+    display:inline-block; padding:10px 22px; background:var(--accent-green);
+    color:#0b0f0c; border-radius:30px; text-decoration:none;
+    font-weight:600; font-size:0.9rem; transition:background .3s;
   }
   .card a:hover{background:#5fd684;}
 
-  footer{
-    text-align:center;padding:50px 20px;opacity:0.6;font-size:0.85rem;
-  }
+  footer{ text-align:center;padding:50px 20px;opacity:0.6;font-size:0.85rem; }
   footer a{color:var(--accent-gold);text-decoration:none;}
 
   .reveal{
@@ -243,34 +235,21 @@
   .reveal.visible{opacity:1;transform:translateY(0);}
 
   .cursor-glow{
-    position:fixed;
-    width:350px;height:350px;
+    position:fixed; width:350px;height:350px;
     background:radial-gradient(circle, rgba(232,200,116,0.12) 0%, transparent 70%);
-    border-radius:50%;
-    pointer-events:none;
-    z-index:99;
-    will-change:transform;
+    border-radius:50%; pointer-events:none; z-index:99; will-change:transform;
   }
 
   .live-badge{
-    position:fixed;
-    bottom:25px;left:25px;
-    background:rgba(18,36,26,0.9);
-    border:1px solid var(--accent-green);
-    padding:10px 18px;
-    border-radius:30px;
-    font-size:0.85rem;
-    display:flex;align-items:center;gap:10px;
-    z-index:90;
-    backdrop-filter:blur(6px);
+    position:fixed; bottom:25px;left:25px;
+    background:rgba(18,36,26,0.9); border:1px solid var(--accent-green);
+    padding:10px 18px; border-radius:30px; font-size:0.85rem;
+    display:flex;align-items:center;gap:10px; z-index:90; backdrop-filter:blur(6px);
   }
   .pulse-dot{
-    width:8px;height:8px;
-    background:var(--accent-green);
-    border-radius:50%;
-    box-shadow:0 0 0 rgba(76,175,107,0.4);
-    animation:pulse 1.8s infinite;
-    flex-shrink:0;
+    width:8px;height:8px; background:var(--accent-green);
+    border-radius:50%; box-shadow:0 0 0 rgba(76,175,107,0.4);
+    animation:pulse 1.8s infinite; flex-shrink:0;
   }
   @keyframes pulse{
     0%{box-shadow:0 0 0 0 rgba(76,175,107,0.7);}
@@ -279,31 +258,22 @@
   }
 
   .gallery-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:20px;
-    margin-top:40px;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px; margin-top:40px;
   }
   .photo-card{
-    position:relative;
-    border-radius:16px;
-    overflow:hidden;
-    height:220px;
-    border:1px solid rgba(232,200,116,0.2);
+    position:relative; border-radius:16px; overflow:hidden;
+    height:220px; border:1px solid rgba(232,200,116,0.2);
   }
   .photo-card .photo-fill{
-    width:100%;height:100%;
-    background-size:cover;background-position:center;
+    width:100%;height:100%; background-size:cover;background-position:center;
     transition:transform .5s ease;
   }
   .photo-card:hover .photo-fill{transform:scale(1.08);}
   .photo-overlay{
     position:absolute;inset:0;
     background:linear-gradient(to top, rgba(11,15,12,0.9), transparent);
-    display:flex;align-items:flex-end;
-    padding:15px;
-    opacity:0;
-    transition:opacity .3s ease;
+    display:flex;align-items:flex-end; padding:15px; opacity:0; transition:opacity .3s ease;
   }
   .photo-card:hover .photo-overlay{opacity:1;}
   .photo-overlay span{font-size:0.9rem;font-weight:600;}
@@ -312,19 +282,25 @@
     .hero{height:180vh;}
     .hero-text h1{font-size:1.8rem;}
     nav ul li:not(.login-li){display:none;}
-    .live-badge{
-      left:12px;right:12px;bottom:12px;
-      font-size:0.78rem;
-      justify-content:center;
-    }
+    .live-badge{ left:12px;right:12px;bottom:12px; font-size:0.78rem; justify-content:center; }
     .cursor-glow{display:none;}
   }
-  .goddess, .tree, .house, .ruin, .notebook {
-    will-change: transform, opacity;
-  }
+  .goddess, .tree, .house, .ruin, .notebook { will-change: transform, opacity; }
 </style>
 </head>
 <body>
+
+<!-- Всплывающее окно авторизации/регистрации -->
+<div class="auth-modal" id="authModal">
+  <div class="auth-box">
+    <span class="close-modal" onclick="toggleAuthModal(false)">&times;</span>
+    <h2 id="authTitle">Вход</h2>
+    <input type="email" id="authEmail" placeholder="Email" required>
+    <input type="password" id="authPass" placeholder="Пароль" required>
+    <button class="auth-btn" id="authBtn" onclick="handleAuth()">Войти</button>
+    <p class="auth-switch" id="authSwitch">Нет аккаунта? Зарегистрируйся</p>
+  </div>
+</div>
 
 <div class="cursor-glow" id="cursorGlow"></div>
 
@@ -339,7 +315,7 @@
     <li><a href="#directions">Направления</a></li>
     <li><a href="#gallery">Галерея</a></li>
     <li><a href="#join">Присоединиться</a></li>
-    <li class="login-li"><a class="login-btn" href="https://t.me/MEHRVOLUNTEER" target="_blank"><span class="avatar">Z</span> Войти</a></li>
+    <li class="login-li"><a class="login-btn" id="loginToggleBtn" href="#"><span class="avatar">Z</span> Войти</a></li>
   </ul>
 </nav>
 
@@ -349,120 +325,39 @@
     <div class="scene">
       <div class="grid-overlay"></div>
       <div class="sun-light" id="sunLight"></div>
-
-      <!-- Тетради -->
-      <svg class="notebook" style="top:20%;left:8%;transform:rotate(-8deg);" viewBox="0 0 110 150" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="5" width="100" height="140" rx="6" fill="#e8ddc8"/>
-        <rect x="5" y="5" width="14" height="140" rx="6" fill="#c99b5a" opacity="0.6"/>
-        <circle cx="12" cy="20" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="40" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="60" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="80" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="100" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="120" r="2.5" fill="#0b0f0c"/>
-        <line class="notebook-line nb1" x1="30" y1="35" x2="95" y2="35" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-        <line class="notebook-line nb2" x1="30" y1="55" x2="85" y2="55" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-        <line class="notebook-line nb3" x1="30" y1="75" x2="90" y2="75" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-        <line class="notebook-line nb4" x1="30" y1="95" x2="70" y2="95" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-
-      <svg class="notebook" style="bottom:14%;right:10%;transform:rotate(6deg);" viewBox="0 0 110 150" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="5" width="100" height="140" rx="6" fill="#e8ddc8"/>
-        <rect x="5" y="5" width="14" height="140" rx="6" fill="#c99b5a" opacity="0.6"/>
-        <circle cx="12" cy="20" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="40" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="60" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="80" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="100" r="2.5" fill="#0b0f0c"/>
-        <circle cx="12" cy="120" r="2.5" fill="#0b0f0c"/>
-        <line class="notebook-line nb5" x1="30" y1="35" x2="90" y2="35" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-        <line class="notebook-line nb6" x1="30" y1="55" x2="95" y2="55" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-        <line class="notebook-line nb7" x1="30" y1="75" x2="75" y2="75" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-        <line class="notebook-line nb8" x1="30" y1="95" x2="88" y2="95" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-
-      <!-- Дом с трещинами -->
-      <svg class="ruin" viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 220 L30 90 L110 60 L190 95 L200 220 Z" fill="#0e1610" stroke="#1c2b20" stroke-width="2"/>
-        <path d="M20 92 L110 55 L200 98 L165 108 L110 82 L58 105 Z" fill="#0a120d"/>
-        <path d="M70 120 L110 112 L112 160 L68 165 Z" fill="#050805"/>
-        <path class="crack" id="crack1" d="M110 60 L98 130 L120 180" stroke="#3a1f1a" stroke-width="2" fill="none"/>
-        <path class="crack" id="crack2" d="M150 95 L160 150 L145 210" stroke="#3a1f1a" stroke-width="2" fill="none"/>
-        <path class="crack" id="crack3" d="M45 110 L60 150 L40 200" stroke="#3a1f1a" stroke-width="1.5" fill="none"/>
-        <rect x="130" y="150" width="30" height="70" fill="#050805"/>
-      </svg>
-
-      <div class="particle" style="top:20%;left:15%;animation-delay:0s;"></div>
-      <div class="particle" style="top:35%;left:70%;animation-delay:1.5s;"></div>
-      <div class="particle" style="top:55%;left:25%;animation-delay:3s;"></div>
-      <div class="particle" style="top:65%;left:80%;animation-delay:2s;"></div>
-      <div class="particle" style="top:45%;left:50%;animation-delay:4s;"></div>
+      <svg class="notebook" style="top:20%;left:8%;transform:rotate(-8deg);" viewBox="0 0 110 150" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="100" height="140" rx="6" fill="#e8ddc8"/><rect x="5" y="5" width="14" height="140" rx="6" fill="#c99b5a" opacity="0.6"/><circle cx="12" cy="20" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="40" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="60" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="80" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="100" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="120" r="2.5" fill="#0b0f0c"/><line class="notebook-line nb1" x1="30" y1="35" x2="95" y2="35" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/><line class="notebook-line nb2" x1="30" y1="55" x2="85" y2="55" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/><line class="notebook-line nb3" x1="30" y1="75" x2="90" y2="75" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/><line class="notebook-line nb4" x1="30" y1="95" x2="70" y2="95" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/></svg>
+      <svg class="notebook" style="bottom:14%;right:10%;transform:rotate(6deg);" viewBox="0 0 110 150" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="100" height="140" rx="6" fill="#e8ddc8"/><rect x="5" y="5" width="14" height="140" rx="6" fill="#c99b5a" opacity="0.6"/><circle cx="12" cy="20" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="40" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="60" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="80" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="100" r="2.5" fill="#0b0f0c"/><circle cx="12" cy="120" r="2.5" fill="#0b0f0c"/><line class="notebook-line nb5" x1="30" y1="35" x2="90" y2="35" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/><line class="notebook-line nb6" x1="30" y1="55" x2="95" y2="55" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/><line class="notebook-line nb7" x1="30" y1="75" x2="75" y2="75" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/><line class="notebook-line nb8" x1="30" y1="95" x2="88" y2="95" stroke="#4a3d2a" stroke-width="2" stroke-linecap="round"/></svg>
+      <svg class="ruin" viewBox="0 0 260 220" xmlns="http://www.w3.org/2000/svg"><path d="M20 220 L30 90 L110 60 L190 95 L200 220 Z" fill="#0e1610" stroke="#1c2b20" stroke-width="2"/><path d="M20 92 L110 55 L200 98 L165 108 L110 82 L58 105 Z" fill="#0a120d"/><path d="M70 120 L110 112 L112 160 L68 165 Z" fill="#050805"/><path class="crack" id="crack1" d="M110 60 L98 130 L120 180" stroke="#3a1f1a" stroke-width="2" fill="none"/><path class="crack" id="crack2" d="M150 95 L160 150 L145 210" stroke="#3a1f1a" stroke-width="2" fill="none"/><path class="crack" id="crack3" d="M45 110 L60 150 L40 200" stroke="#3a1f1a" stroke-width="1.5" fill="none"/><rect x="130" y="150" width="30" height="70" fill="#050805"/></svg>
+      <div class="particle" style="top:20%;left:15%;animation-delay:0s;"></div><div class="particle" style="top:35%;left:70%;animation-delay:1.5s;"></div><div class="particle" style="top:55%;left:25%;animation-delay:3s;"></div><div class="particle" style="top:65%;left:80%;animation-delay:2s;"></div><div class="particle" style="top:45%;left:50%;animation-delay:4s;"></div>
       
       <div class="hero-text">
         <h1>MEHR</h1>
         <p>Свет начинается с одного шага</p>
       </div>
 
-      <!-- Главная фигура (человек) -->
       <div class="goddess" id="goddess">
         <svg viewBox="0 0 220 420" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <radialGradient id="phoneGlow" cx="50%" cy="100%" r="80%">
-              <stop offset="0%" stop-color="#8fd3e8"/>
-              <stop offset="50%" stop-color="#2a3c31"/>
-              <stop offset="100%" stop-color="#0a120d"/>
-            </radialGradient>
-          </defs>
-
-          <!-- ТЁМНАЯ ВЕРСИЯ -->
-          <g id="personDark" style="opacity:1;">
-            <circle cx="110" cy="55" r="32" fill="url(#phoneGlow)"/>
-            <path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#0a120d"/>
-            <path d="M 68 112 L 40 148 L 84 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M 152 112 L 180 148 L 136 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </g>
-
-          <!-- СВЕТЛАЯ ВЕРСИЯ -->
-          <g id="personLight" style="opacity:0;">
-            <circle cx="110" cy="55" r="32" fill="#f2f2ea"/>
-            <path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#f2f2ea"/>
-            <path d="M 68 112 L 46 180 L 52 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M 152 112 L 174 180 L 168 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </g>
-
-          <!-- ТЕЛЕФОН -->
-          <g id="phoneGroup">
-            <rect x="90" y="138" width="40" height="68" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/>
-            <rect id="phoneScreen" x="94" y="142" width="32" height="60" rx="3" fill="#8fd3e8"/>
-          </g>
+          <defs><radialGradient id="phoneGlow" cx="50%" cy="100%" r="80%"><stop offset="0%" stop-color="#8fd3e8"/><stop offset="50%" stop-color="#2a3c31"/><stop offset="100%" stop-color="#0a120d"/></radialGradient></defs>
+          <g id="personDark" style="opacity:1;"><circle cx="110" cy="55" r="32" fill="url(#phoneGlow)"/><path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#0a120d"/><path d="M 68 112 L 40 148 L 84 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M 152 112 L 180 148 L 136 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+          <g id="personLight" style="opacity:0;"><circle cx="110" cy="55" r="32" fill="#f2f2ea"/><path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#f2f2ea"/><path d="M 68 112 L 46 180 L 52 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M 152 112 L 174 180 L 168 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
+          <g id="phoneGroup"><rect x="90" y="138" width="40" height="68" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/><rect id="phoneScreen" x="94" y="142" width="32" height="60" rx="3" fill="#8fd3e8"/></g>
         </svg>
       </div>
 
-      <!-- Солнце -->
       <div class="sun-wrap" id="sunWrap">
         <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
           <circle cx="150" cy="150" r="48" fill="#e8c874" id="sunCore"/>
           <g id="sunRays" stroke="#e8c874" stroke-width="6" stroke-linecap="round">
-            <line x1="150" y1="25" x2="150" y2="65"/>
-            <line x1="150" y1="235" x2="150" y2="275"/>
-            <line x1="25" y1="150" x2="65" y2="150"/>
-            <line x1="235" y1="150" x2="275" y2="150"/>
-            <line x1="60" y1="60" x2="88" y2="88"/>
-            <line x1="212" y1="212" x2="240" y2="240"/>
-            <line x1="240" y1="60" x2="212" y2="88"/>
-            <line x1="88" y1="212" x2="60" y2="240"/>
+            <line x1="150" y1="25" x2="150" y2="65"/><line x1="150" y1="235" x2="150" y2="275"/><line x1="25" y1="150" x2="65" y2="150"/><line x1="235" y1="150" x2="275" y2="150"/><line x1="60" y1="60" x2="88" y2="88"/><line x1="212" y1="212" x2="240" y2="240"/><line x1="240" y1="60" x2="212" y2="88"/><line x1="88" y1="212" x2="60" y2="240"/>
           </g>
         </svg>
       </div>
 
-      <!-- Дома и Деревья -->
       <svg class="house" id="house1" style="left:22%;" viewBox="0 0 60 60"><polygon points="30,5 55,28 5,28" fill="#c99b5a"/><rect x="12" y="28" width="36" height="28" fill="#e8dfc8"/><rect x="24" y="38" width="12" height="18" fill="#5b3a20"/></svg>
       <svg class="house" id="house2" style="left:68%;" viewBox="0 0 60 60"><polygon points="30,5 55,28 5,28" fill="#c99b5a"/><rect x="12" y="28" width="36" height="28" fill="#e8dfc8"/><rect x="24" y="38" width="12" height="18" fill="#5b3a20"/></svg>
-
       <svg class="tree" id="tree1" style="left:15%;" viewBox="0 0 40 80"><circle cx="20" cy="20" r="18" fill="#4caf6b"/><rect x="16" y="35" width="8" height="45" fill="#5b3a20"/></svg>
       <svg class="tree" id="tree2" style="left:75%;" viewBox="0 0 40 80"><circle cx="20" cy="20" r="18" fill="#4caf6b"/><rect x="16" y="35" width="8" height="45" fill="#5b3a20"/></svg>
       <svg class="tree" id="tree3" style="left:85%;bottom:5%;" viewBox="0 0 40 80"><circle cx="20" cy="20" r="14" fill="#4caf6b"/><rect x="16" y="30" width="8" height="35" fill="#5b3a20"/></svg>
-
       <div class="ground"></div>
       <div class="scroll-hint">↓ Прокрути вниз</div>
     </div>
@@ -473,8 +368,8 @@
 <section class="info" id="mission">
   <div class="mission reveal">
     <h2>Наша миссия</h2>
-    <p>Mehr — молодёжное волонтёрское объединение, созданное учениками и студентами, которые не хотят ждать, пока изменения начнёт кто-то другой. Мы верим, что забота о людях и природе — это не разовая акция, а привычка, которую можно строить вместе, шаг за шагом, каждую неделю.</p>
-    <p style="margin-top:18px;">Мы не крупная организация с офисом и бюджетом — мы группа, которая начала с малого: один сайт, один Telegram-канал и желание сделать что-то настоящее. Присоединяясь, вы не просто "участвуете в мероприятии" — вы становитесь частью команды, которая планирует, организует и растёт вместе.</p>
+    <p>Mehr — молодёжное волонтёрское объединение, созданное учениками и студентами, которые не хотят ждать, пока изменения начнёт кто-то другой.</p>
+    <p style="margin-top:18px;">Мы не крупная организация с офисом и бюджетом — мы группа, которая начала с малого: один сайт, один Telegram-канал и желание сделать что-то настоящее.</p>
   </div>
   <div class="stats reveal">
     <div class="stat"><div class="num">20</div><div class="label">активных волонтёров в команде</div></div>
@@ -485,171 +380,211 @@
 
 <!-- DIRECTIONS -->
 <section class="info" id="directions">
-  <div class="mission reveal">
-    <h2>Направления</h2>
-  </div>
+  <div class="mission reveal"><h2>Направления</h2></div>
   <div class="cards">
     <div class="card reveal">
-      <div class="icon">🌳</div>
-      <h3>Экология</h3>
-      <p>Высаживаем деревья в парках и на пустырях, убираем мусор с общественных территорий, проводим экологические субботники по выходным. Каждое дерево, которое мы сажаем, отмечаем на карте — так видно реальный результат работы команды.</p>
-      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться в Telegram</a>
+      <div class="icon">🌳</div><h3>Экология</h3>
+      <p>Высаживаем деревья в парках и на пустырях, убираем мусор с общественных территорий.</p>
+      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
     </div>
     <div class="card reveal">
-      <div class="icon">🤝</div>
-      <h3>Забота о людях</h3>
-      <p>Навещаем пожилых людей, помогаем по хозяйству, разговариваем и просто проводим время рядом. Также поддерживаем людей, переживших ДТП или другие тяжёлые события — эмоционально и практически, без давления и без осуждения.</p>
-      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться в Telegram</a>
+      <div class="icon">🤝</div><h3>Забота о людях</h3>
+      <p>Навещаем пожилых людей, помогаем по хозяйству, поддерживаем людей в трудный час.</p>
+      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
     </div>
     <div class="card reveal">
-      <div class="icon">💬</div>
-      <h3>Диалог и дебаты</h3>
-      <p>Организуем открытые дебаты и дискуссионные встречи на актуальные темы — учимся аргументировать, слушать оппонента и уважать чужое мнение. Это направление помогает развивать soft skills, полезные и для университета, и для жизни.</p>
-      <a href="debates.html" class="btn">Присоединиться к дебатам</a>
+      <div class="icon">💬</div><h3>Диалог и дебаты</h3>
+      <p>Организуем открытые дебаты и дискуссионные встречи на актуальные темы.</p>
+        <a href="debates.html" class="btn">К дебатам</a>
+      </div>
+      <div class="card reveal">
+        <div class="icon">🎓</div><h3>Образование и поступление</h3>
+        <p>Помогаем школьникам разобраться, как поступить в университет и оформить заявку.</p>
+        <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
+      </div>
     </div>
-    <div class="card reveal">
-      <div class="icon">🎓</div>
-      <h3>Образование и поступление</h3>
-      <p>Помогаем школьникам разобраться, как поступить в университет — рассказываем про эссе, экзамены, стипендии и то, как правильно оформить волонтёрский опыт для заявки. Делимся собственным путём поступления, без платных курсов.</p>
-      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться в Telegram</a>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="info" id="gallery">
+    <div class="mission reveal"><h2>Галерея акций</h2></div>
+    <div class="gallery-grid reveal">
+      <div class="photo-card"><div class="photo-fill" style="background:url('images/photo1.jpg') center/cover;"></div><div class="photo-overlay"><span>Форум «Тинчлик Чемпионлари»</span></div></div>
+      <div class="photo-card"><div class="photo-fill" style="background:url('images/photo2.jpg') center/cover;"></div><div class="photo-overlay"><span>Наши волонтёры на мероприятии</span></div></div>
+      <div class="photo-card"><div class="photo-fill" style="background:url('images/photo3.jpg') center/cover;"></div><div class="photo-overlay"><span>Посадка деревьев с местными жителями</span></div></div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- GALLERY -->
-<section class="info" id="gallery">
-  <div class="mission reveal">
-    <h2>Галерея акций</h2>
-  </div>
-  <div class="gallery-grid reveal">
-    <div class="photo-card">
-      <div class="photo-fill" style="background:url('images/photo1.jpg') center/cover;"></div>
-      <div class="photo-overlay"><span>Форум «Тинчлик Чемпионлари» — выступление команды</span></div>
-    </div>
-    <div class="photo-card">
-      <div class="photo-fill" style="background:url('images/photo2.jpg') center/cover;"></div>
-      <div class="photo-overlay"><span>Наши волонтёры на мероприятии</span></div>
-    </div>
-    <div class="photo-card">
-      <div class="photo-fill" style="background:url('images/photo3.jpg') center/cover;"></div>
-      <div class="photo-overlay"><span>Посадка деревьев с местными жителями</span></div>
-    </div>
-  </div>
-</section>
+  <footer>
+    © 2026 Mehr. Сделано с заботой двух друзей, которые верят в большие перемены.
+  </footer>
 
-<!-- JOIN -->
-<section class="info" id="join">
-  <div class="mission reveal">
-    <h2>Стать частью Mehr</h2>
-    <p>Всё общение, расписание мероприятий и запись на них проходят в нашем общем Telegram-канале. Там ты увидишь актуальный план на неделю — например, понедельник это посадка деревьев, вторник это визит к пожилым людям — сможешь выбрать удобный для себя формат и написать организатору напрямую.</p>
-    <p style="margin-top:16px;">Если хочешь предложить свою идею мероприятия или создать собственное направление внутри Mehr — тоже пиши, мы открыты к инициативе каждого участника.</p>
-    <br>
-    <a href="https://t.me/MEHRVOLUNTEER" target="_blank" style="display:inline-block;margin-top:10px;padding:14px 36px;background:var(--accent-gold);color:#0b0f0c;border-radius:30px;text-decoration:none;font-weight:700;">Открыть Telegram</a>
-  </div>
-</section>
+  <script>
+    /* ---------------- FIREBASE АВТОРИЗАЦИЯ ---------------- */
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCrGEsruUXdx_eD-5TC5HD75gaCp-IKSc",
+      authDomain: "mehr-debates.firebaseapp.com",
+      databaseURL: "https://mehr-debates-default-rtdb.firebaseio.com",
+      projectId: "mehr-debates",
+      storageBucket: "mehr-debates.firebasestorage.app",
+      messagingSenderId: "261343927171",
+      appId: "1:261343927171:web:b068906caa12acfe55f4b6",
+      measurementId: "G-8XCK5V2LDT"
+    };
 
-<footer>
-  © 2026 Mehr. Сделано с заботой двух друзей, которые верят в большие перемены.
-</footer>
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-<script>
-  const heroScene = document.getElementById('heroScene');
-  const sunWrap = document.getElementById('sunWrap');
-  const sunRays = document.querySelectorAll('#sunRays line');
-  const sunLight = document.getElementById('sunLight');
-  const cracks = [document.getElementById('crack1'), document.getElementById('crack2'), document.getElementById('crack3')];
-  const notebookLines = document.querySelectorAll('.notebook-line');
-  
-  const phoneGroup = document.getElementById('phoneGroup');
-  const phoneScreen = document.getElementById('phoneScreen');
-  const personDark = document.getElementById('personDark');
-  const personLight = document.getElementById('personLight');
+    const authModal = document.getElementById('authModal');
+    const authTitle = document.getElementById('authTitle');
+    const authBtn = document.getElementById('authBtn');
+    const authSwitch = document.getElementById('authSwitch');
+    const loginToggleBtn = document.getElementById('loginToggleBtn');
 
-  const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
-  const houses = [document.getElementById('house1'), document.getElementById('house2')];
+    let isLogin = true;
 
-  function updateScene(){
-    const rect = heroScene.getBoundingClientRect();
-    const total = heroScene.offsetHeight - window.innerHeight;
-    
-    let progress = -rect.top / total;
-    progress = Math.min(Math.max(progress, 0), 1);
-
-    const screenP = Math.min(Math.max((progress - 0.1) / 0.15, 0), 1);
-    phoneScreen.style.opacity = 1 - screenP;
-
-    const phoneP = Math.min(Math.max((progress - 0.2) / 0.2, 0), 1);
-    phoneGroup.style.opacity = 1 - phoneP;
-    phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
-    phoneGroup.style.transformOrigin = '110px 173px';
-    
-    personDark.style.opacity = 1 - phoneP;
-    personLight.style.opacity = phoneP;
-
-    const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
-    sunWrap.style.opacity = sunP;
-    sunRays.forEach((ray, i) => {
-      const rayStart = sunP - i * 0.05;
-      ray.style.opacity = Math.min(Math.max(rayStart * 2, 0), 1);
-    });
-    sunLight.style.opacity = sunP;
-
-    cracks.forEach((crack, i) => {
-      const start = 0.1 + i * 0.08;
-      const p = Math.min(Math.max((progress - start) / 0.3, 0), 1);
-      crack.style.opacity = 1 - p;
-    });
-
-    notebookLines.forEach((line, i) => {
-      const start = 0.15 + i * 0.07;
-      const p = Math.min(Math.max((progress - start) / 0.2, 0), 1);
-      line.style.strokeDashoffset = 80 * (1 - p);
-    });
-
-    trees.forEach((tree, i) => {
-      const start = 0.5 + i * 0.12;
-      const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
-      tree.style.opacity = p;
-      tree.style.transform = `translateY(${40 * (1 - p)}px) scale(${0.6 + p * 0.4})`;
-    });
-
-    houses.forEach((house, i) => {
-      const start = 0.75 + i * 0.1;
-      const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
-      house.style.opacity = p;
-      house.style.transform = `translateY(${50 * (1 - p)}px) scale(${0.5 + p * 0.5})`;
-    });
-  }
-
-  window.addEventListener('scroll', updateScene);
-  updateScene();
-
-  const cursorGlow = document.getElementById('cursorGlow') || document.querySelector('.cursor-glow');
-  let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-
-  window.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-  });
-
-  function animateCursor() {
-    if (cursorGlow && window.innerWidth > 768) {
-      cursorGlow.style.transform = `translate(${mouseX - 175}px, ${mouseY - 175}px)`;
+    function toggleAuthModal(show) {
+      authModal.style.display = show ? 'flex' : 'none';
     }
-    requestAnimationFrame(animateCursor);
-  }
-  animateCursor();
 
-  const revealEls = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if(entry.isIntersecting){
-        entry.target.classList.add('visible');
+    authSwitch.onclick = () => {
+      isLogin = !isLogin;
+      authTitle.innerText = isLogin ? 'Вход' : 'Регистрация';
+      authBtn.innerText = isLogin ? 'Войти' : 'Зарегистрироваться';
+      authSwitch.innerText = isLogin ? 'Нет аккаунта? Зарегистрируйся' : 'Уже есть аккаунт? Войти';
+    };
+
+    function handleAuth() {
+      const email = document.getElementById('authEmail').value;
+      const pass = document.getElementById('authPass').value;
+      
+      if (!email || !pass) {
+        alert("Пожалуйста, заполните все поля");
+        return;
+      }
+
+      if(isLogin) {
+        auth.signInWithEmailAndPassword(email, pass)
+          .then(() => toggleAuthModal(false))
+          .catch(err => alert("Ошибка входа: " + err.message));
+      } else {
+        auth.createUserWithEmailAndPassword(email, pass)
+          .then(() => toggleAuthModal(false))
+          .catch(err => alert("Ошибка регистрации: " + err.message));
+      }
+    }
+
+    // Отслеживание состояния пользователя
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        // Пользователь вошел
+        let firstLetter = user.email.charAt(0).toUpperCase();
+        loginToggleBtn.innerHTML = `<span class="avatar">${firstLetter}</span> Выйти`;
+        loginToggleBtn.onclick = (e) => {
+          e.preventDefault();
+          auth.signOut();
+        };
+      } else {
+        // Пользователь не вошел
+        loginToggleBtn.innerHTML = `<span class="avatar">Z</span> Войти`;
+        loginToggleBtn.onclick = (e) => {
+          e.preventDefault();
+          toggleAuthModal(true);
+        };
       }
     });
-  }, {threshold:0.15});
-  revealEls.forEach(el => observer.observe(el));
-</script>
 
+
+    /* ---------------- АНИМАЦИИ SCROLL / СЦЕНЫ ---------------- */
+    const heroScene = document.getElementById('heroScene');
+    const sunWrap = document.getElementById('sunWrap');
+    const sunRays = document.querySelectorAll('#sunRays line');
+    const sunLight = document.getElementById('sunLight');
+    const cracks = [document.getElementById('crack1'), document.getElementById('crack2'), document.getElementById('crack3')];
+    const notebookLines = document.querySelectorAll('.notebook-line');
+    
+    const phoneGroup = document.getElementById('phoneGroup');
+    const phoneScreen = document.getElementById('phoneScreen');
+    const personDark = document.getElementById('personDark');
+    const personLight = document.getElementById('personLight');
+
+    const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
+    const houses = [document.getElementById('house1'), document.getElementById('house2')];
+
+    function updateScene(){
+      const rect = heroScene.getBoundingClientRect();
+      const total = heroScene.offsetHeight - window.innerHeight;
+      
+      let progress = -rect.top / total;
+      progress = Math.min(Math.max(progress, 0), 1);
+
+      const screenP = Math.min(Math.max((progress - 0.1) / 0.15, 0), 1);
+      phoneScreen.style.opacity = 1 - screenP;
+
+      const phoneP = Math.min(Math.max((progress - 0.2) / 0.2, 0), 1);
+      phoneGroup.style.opacity = 1 - phoneP;
+      phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
+      phoneGroup.style.transformOrigin = '110px 173px';
+      
+      personDark.style.opacity = 1 - phoneP;
+      personLight.style.opacity = phoneP;
+
+      const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
+      sunWrap.style.opacity = sunP;
+      sunRays.forEach((ray, i) => {
+        const rayStart = sunP - i * 0.05;
+        ray.style.opacity = Math.min(Math.max(rayStart * 2, 0), 1);
+      });
+      sunLight.style.opacity = sunP;
+
+      cracks.forEach((crack, i) => {
+        const start = 0.1 + i * 0.08;
+        const p = Math.min(Math.max((progress - start) / 0.3, 0), 1);
+        crack.style.opacity = 1 - p;
+      });
+
+      notebookLines.forEach((line, i) => {
+        const start = 0.15 + i * 0.07;
+        const p = Math.min(Math.max((progress - start) / 0.2, 0), 1);
+        line.style.strokeDashoffset = 80 * (1 - p);
+      });
+
+      trees.forEach((tree, i) => {
+        const start = 0.5 + i * 0.12;
+        const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
+        tree.style.opacity = p;
+        tree.style.transform = `translateY(${40 * (1 - p)}px) scale(${0.6 + p * 0.4})`;
+      });
+
+      houses.forEach((house, i) => {
+        const start = 0.75 + i * 0.1;
+        const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
+        house.style.opacity = p;
+        house.style.transform = `translateY(${50 * (1 - p)}px) scale(${0.5 + p * 0.5})`;
+      });
+    }
+
+    window.addEventListener('scroll', updateScene);
+    updateScene();
+
+    const cursorGlow = document.getElementById('cursorGlow') || document.querySelector('.cursor-glow');
+    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
+
+    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+
+    function animateCursor() {
+      if (cursorGlow && window.innerWidth > 768) {
+        cursorGlow.style.transform = `translate(${mouseX - 175}px, ${mouseY - 175}px)`;
+      }
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    const revealEls = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('visible'); } });
+    }, {threshold:0.15});
+    revealEls.forEach(el => observer.observe(el));
+  </script>
 </body>
 </html>
