@@ -31,7 +31,7 @@
     overflow-x:hidden;
   }
 
-  /* NAV */
+  /* НАВИГАЦИЯ */
   nav{
     position:fixed;top:0;left:0;right:0;
     display:flex;justify-content:space-between;align-items:center;
@@ -40,21 +40,22 @@
     backdrop-filter:blur(6px);
   }
   nav .logo{font-weight:700;font-size:1.4rem;letter-spacing:2px;color:var(--accent-gold);}
-  nav ul{display:flex;gap:30px;list-style:none;align-items:center;}
+  nav ul{display:flex;gap:20px;list-style:none;align-items:center;}
   nav a{color:var(--text-light);text-decoration:none;font-size:0.95rem;opacity:0.85;transition:opacity .3s;}
   nav a:hover{opacity:1;color:var(--accent-gold);}
-  .login-btn{
+  .login-btn, .admin-nav-btn{
     display:flex;align-items:center;gap:8px;
     padding:8px 18px;
     border:1px solid var(--accent-gold);
     border-radius:30px;
     color:var(--accent-gold)!important;
     font-weight:600;font-size:0.9rem!important;
+    background:transparent;
     opacity:1!important;
     cursor:pointer;
     transition:background .3s, color .3s;
   }
-  .login-btn:hover{
+  .login-btn:hover, .admin-nav-btn:hover{
     background:var(--accent-gold);
     color:var(--bg-dark)!important;
   }
@@ -78,6 +79,7 @@
     padding: 35px;
     position: relative;
     box-shadow: 0 10px 30px rgba(232, 200, 116, 0.1);
+    margin-bottom: 25px;
   }
   .event-badge {
     display: inline-block;
@@ -178,34 +180,35 @@
     letter-spacing: 0.5px;
   }
 
-  /* MODALS */
+  /* МОДАЛЬНЫЕ ОКНА */
   .auth-modal {
     display:none; 
     position:fixed; inset:0; 
-    background:rgba(0,0,0,0.8); 
+    background:rgba(0,0,0,0.85); 
     z-index:1000; 
     justify-content:center; align-items:center; 
-    backdrop-filter:blur(5px);
+    backdrop-filter:blur(6px);
   }
   .auth-box {
     background:var(--bg-mid); 
     border:1px solid var(--accent-gold); 
     padding:30px; border-radius:16px; 
-    width:90%; max-width:420px; 
+    width:90%; max-width:460px; 
     text-align:center;
-    box-shadow:0 8px 32px 0 rgba(0,0,0,0.5);
+    box-shadow:0 8px 32px 0 rgba(0,0,0,0.6);
   }
   .auth-box h2 { color:var(--accent-gold); margin-bottom:15px; }
-  .auth-box input {
-    width:100%; padding:12px; margin-bottom:12px; 
+  .auth-box label { display:block; text-align:left; font-size:0.85rem; color:var(--gold); margin:8px 0 4px; }
+  .auth-box input, .auth-box textarea {
+    width:100%; padding:12px; margin-bottom:10px; 
     border-radius:8px; border:1px solid var(--accent-green); 
-    background:#0b0f0c; color:white; outline:none;
+    background:#0b0f0c; color:white; outline:none; font-family:inherit;
   }
   .auth-btn {
     width:100%; padding:12px; 
     background:var(--accent-green); color:black; 
     font-weight:bold; border:none; border-radius:8px; 
-    cursor:pointer; margin-top:5px; margin-bottom:15px; transition:0.3s;
+    cursor:pointer; margin-top:10px; margin-bottom:10px; transition:0.3s;
   }
   .auth-btn:hover { background:#5fd684; }
   .auth-switch { color:var(--accent-gold); cursor:pointer; font-size:0.9rem; opacity:0.8; }
@@ -216,7 +219,7 @@
   }
   .close-modal:hover { opacity:1; }
 
-  /* HERO SCENE */
+  /* HERO СЦЕНА */
   .hero{ height:300vh; position:relative; }
   .hero-sticky{
     position:sticky;top:0;height:100vh;
@@ -303,7 +306,7 @@
     50%{transform:translate(-50%,10px);}
   }
 
-  /* SECTIONS */
+  /* СЕКЦИИ */
   section.info{ padding:100px 10%; max-width:1100px;margin:0 auto; }
   .mission{ text-align:center; }
   .mission h2{font-size:2rem;color:var(--accent-gold);margin-bottom:20px;}
@@ -434,10 +437,35 @@
   </div>
 </div>
 
+<!-- АДМИН-ПАНЕЛЬ (МОДАЛЬНОЕ ОКНО СОЗДАНИЯ СОБЫТИЯ) -->
+<div class="auth-modal" id="adminModal">
+  <div class="auth-box">
+    <span class="close-modal" onclick="toggleAdminModal(false)">&times;</span>
+    <h2>⚙️ Добавить событие</h2>
+    
+    <label>Название события / турнира:</label>
+    <input type="text" id="admTitle" placeholder="Например: Очные Дебаты в YES Фергана" required>
+
+    <label>Краткое описание:</label>
+    <input type="text" id="admDesc" placeholder="Правила турнира, формат и т.д." required>
+
+    <label>Локация (Место проведения):</label>
+    <input type="text" id="admLocation" placeholder="Например: Учебный центр YES, г. Фергана" required>
+
+    <label>Дата и время проведения:</label>
+    <input type="datetime-local" id="admEventDate" required>
+
+    <label>Дедлайн подачи информации / регистрации:</label>
+    <input type="datetime-local" id="admDeadline" required>
+
+    <button class="auth-btn" onclick="publishEvent()">Опубликовать событие</button>
+  </div>
+</div>
+
 <div class="cursor-glow" id="cursorGlow"></div>
 
-<div class="live-badge">
-  <span class="pulse-dot"></span> Ближайший турнир: Суббота, 26 сентября (14:00) — YES Fergana
+<div class="live-badge" id="liveBadge">
+  <span class="pulse-dot"></span> Ближайший турнир: Загрузка...
 </div>
 
 <nav>
@@ -447,6 +475,7 @@
     <li><a href="#directions">Направления</a></li>
     <li><a href="#events">Дебаты</a></li>
     <li><a href="#gallery">Галерея</a></li>
+    <li><button class="admin-nav-btn" onclick="toggleAdminModal(true)">⚙️ Админка</button></li>
     <li class="login-li"><a class="login-btn" id="loginToggleBtn" href="#"><span class="avatar">Z</span> Войти</a></li>
   </ul>
 </nav>
@@ -537,51 +566,10 @@
   </div>
 </section>
 
-<!-- СЕКЦИЯ СОБЫТИЯ (ЕДИНСТВЕННОЕ МЕРОПРИЯТИЕ) -->
+<!-- СЕКЦИЯ СОБЫТИЙ -->
 <section class="events-section" id="events">
-  <div class="events-container">
-    <div class="featured-event-card">
-      <div class="event-badge">🔥 БЛИЖАЙШИЙ ТУРНИР</div>
-      <h2 class="featured-title">Очные Дебаты в Фергане</h2>
-      <p class="featured-sub">Живой турнир по правилам MEHR Debates. Проверь свои навыки ораторского искусства и логики!</p>
-      
-      <div class="event-details-grid">
-        <div class="detail-item">
-          <span class="icon">📍</span>
-          <div>
-            <strong>Локация:</strong>
-            <p>Учебный центр YES, г. Фергана</p>
-          </div>
-        </div>
-        <div class="detail-item">
-          <span class="icon">📅</span>
-          <div>
-            <strong>Дата и время:</strong>
-            <p>Суббота, 26 сентября (14:00)</p>
-          </div>
-        </div>
-        <div class="detail-item">
-          <span class="icon">👥</span>
-          <div>
-            <strong>Формат:</strong>
-            <p>Очный турнир / Командный</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ТАЙМЕР ОБРАТНОГО ОТСЧЕТА -->
-      <div class="countdown-container">
-        <div class="countdown-title">До начала осталось:</div>
-        <div class="timer">
-          <div><span id="t-days">00</span><label>дней</label></div>
-          <div><span id="t-hours">00</span><label>часов</label></div>
-          <div><span id="t-minutes">00</span><label>минут</label></div>
-          <div><span id="t-seconds">00</span><label>секунд</label></div>
-        </div>
-      </div>
-
-      <button class="btn-gold event-btn" onclick="registerForEvent('Очные Дебаты в YES Фергана')">Записаться на участие</button>
-    </div>
+  <div class="events-container" id="eventsContainer">
+    <!-- Сюда динамически выгружаются события из Firebase -->
   </div>
 </section>
 
@@ -600,7 +588,10 @@
 </footer>
 
 <script>
-  /* ---------------- FIREBASE ИНИЦИАЛИЗАЦИЯ ---------------- */
+  /* ---------------- КОНФИГУРАЦИЯ TELEGRAM И FIREBASE ---------------- */
+  const BOT_TOKEN = '8942675207:AAGlXLi-7viMsMFBKXJKcK_1svX3C18GTPw';
+  const CHAT_ID = '-1004421499147';
+
   const firebaseConfig = {
     apiKey: "AIzaSyCCrGEsruUXdx_eD-5TC5HD75gaCp-IKSc",
     authDomain: "mehr-debates.firebaseapp.com",
@@ -626,15 +617,17 @@
   let isLogin = true;
 
   function toggleAuthModal(show) {
-    authModal.style.display = show ? 'flex' : 'none';
+    if (authModal) authModal.style.display = show ? 'flex' : 'none';
   }
 
-  authSwitch.onclick = () => {
-    isLogin = !isLogin;
-    authTitle.innerText = isLogin ? 'Вход' : 'Регистрация';
-    authBtn.innerText = isLogin ? 'Войти' : 'Зарегистрироваться';
-    authSwitch.innerText = isLogin ? 'Нет аккаунта? Зарегистрируйся' : 'Уже есть аккаунт? Войти';
-  };
+  if (authSwitch) {
+    authSwitch.onclick = () => {
+      isLogin = !isLogin;
+      authTitle.innerText = isLogin ? 'Вход' : 'Регистрация';
+      authBtn.innerText = isLogin ? 'Войти' : 'Зарегистрироваться';
+      authSwitch.innerText = isLogin ? 'Нет аккаунта? Зарегистрируйся' : 'Уже есть аккаунт? Войти';
+    };
+  }
 
   function handleAuth() {
     const email = document.getElementById('authEmail').value;
@@ -645,7 +638,7 @@
       return;
     }
 
-    if(isLogin) {
+    if (isLogin) {
       auth.signInWithEmailAndPassword(email, pass)
         .then(() => toggleAuthModal(false))
         .catch(err => alert("Ошибка входа: " + err.message));
@@ -657,6 +650,7 @@
   }
 
   auth.onAuthStateChanged(user => {
+    if (!loginToggleBtn) return;
     if (user) {
       let firstLetter = user.email.charAt(0).toUpperCase();
       loginToggleBtn.innerHTML = `<span class="avatar">${firstLetter}</span> Выйти`;
@@ -673,21 +667,22 @@
     }
   });
 
-  /* ---------------- БРОНИРОВАНИЕ МЕРОПРИЯТИЙ ---------------- */
+  /* ---------------- БРОНИРОВАНИЕ И ОТПРАВКА В TELEGRAM ---------------- */
   const bookingModal = document.getElementById('bookingModal');
   let currentSelectedEvent = '';
 
   function registerForEvent(eventName) {
     currentSelectedEvent = eventName;
-    document.getElementById('bookingEventName').innerText = eventName;
-    bookingModal.style.display = 'flex';
+    const eventTitle = document.getElementById('bookingEventName');
+    if (eventTitle) eventTitle.innerText = eventName;
+    toggleBookingModal(true);
   }
 
   function toggleBookingModal(show) {
-    bookingModal.style.display = show ? 'flex' : 'none';
+    if (bookingModal) bookingModal.style.display = show ? 'flex' : 'none';
   }
 
-  function submitBooking() {
+  async function submitBooking() {
     const firstName = document.getElementById('bookFirstName').value.trim();
     const lastName = document.getElementById('bookLastName').value.trim();
     const phone = document.getElementById('bookPhone').value.trim();
@@ -700,7 +695,7 @@
     }
 
     const bookingData = {
-      eventName: currentSelectedEvent,
+      eventName: currentSelectedEvent || 'Очные Дебаты в YES Фергана',
       firstName: firstName,
       lastName: lastName,
       phone: phone,
@@ -709,51 +704,222 @@
       date: new Date().toLocaleString()
     };
 
-    db.ref('registrations').push(bookingData)
-      .then(() => {
-        alert(`Спасибо, ${firstName}! Ваше место на "${currentSelectedEvent}" успешно забронировано.`);
-        toggleBookingModal(false);
-        document.getElementById('bookFirstName').value = '';
-        document.getElementById('bookLastName').value = '';
-        document.getElementById('bookPhone').value = '';
-        document.getElementById('bookTelegram').value = '';
-        document.getElementById('bookAge').value = '';
-      })
-      .catch((error) => {
-        alert("Ошибка при сохранении: " + error.message);
+    const tgMessage = `📌 **Новая запись на дебаты (YES Фергана)!**\n\n` +
+                      `🎯 **Ивент:** ${bookingData.eventName}\n` +
+                      `👤 **Имя:** ${firstName} ${lastName}\n` +
+                      `📞 **Телефон:** ${phone}\n` +
+                      `💬 **Telegram:** ${telegram}\n` +
+                      `🎂 **Возраст:** ${age}`;
+
+    try {
+      // 1. Сохранение в базу данных Firebase
+      await db.ref('registrations').push(bookingData);
+
+      // 2. Отправка сообщения в Telegram-группу
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: tgMessage,
+          parse_mode: 'Markdown'
+        })
       });
+
+      alert(`Спасибо, ${firstName}! Ваше место успешно забронировано.`);
+      toggleBookingModal(false);
+
+      // Очистка формы
+      document.getElementById('bookFirstName').value = '';
+      document.getElementById('bookLastName').value = '';
+      document.getElementById('bookPhone').value = '';
+      document.getElementById('bookTelegram').value = '';
+      document.getElementById('bookAge').value = '';
+
+    } catch (error) {
+      console.error("Ошибка при бронировании:", error);
+      alert("Произошла ошибка при отправке данных: " + error.message);
+    }
   }
 
-  /* ---------------- ЛОГИКА ТАЙМЕРА ДО 26 СЕНТЯБРЯ 14:00 ---------------- */
-  const targetDate = new Date('2026-09-26T14:00:00');
+  /* ---------------- АДМИНКА: ДОБАВЛЕНИЕ СОБЫТИЙ ---------------- */
+  const adminModal = document.getElementById('adminModal');
 
-  function updateTimer() {
-    const now = new Date();
-    const diff = targetDate - now;
+  function toggleAdminModal(show) {
+    if (adminModal) adminModal.style.display = show ? 'flex' : 'none';
+  }
 
-    if (diff <= 0) {
-      document.getElementById('t-days').innerText = '00';
-      document.getElementById('t-hours').innerText = '00';
-      document.getElementById('t-minutes').innerText = '00';
-      document.getElementById('t-seconds').innerText = '00';
+  function publishEvent() {
+    const title = document.getElementById('admTitle').value.trim();
+    const desc = document.getElementById('admDesc').value.trim();
+    const location = document.getElementById('admLocation').value.trim();
+    const eventDate = document.getElementById('admEventDate').value;
+    const deadline = document.getElementById('admDeadline').value;
+
+    if (!title || !desc || !location || !eventDate || !deadline) {
+      alert("Заполните все поля мероприятия!");
       return;
     }
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+    const newEvent = {
+      title,
+      desc,
+      location,
+      eventDate,
+      deadline,
+      createdAt: new Date().toISOString()
+    };
 
-    document.getElementById('t-days').innerText = String(days).padStart(2, '0');
-    document.getElementById('t-hours').innerText = String(hours).padStart(2, '0');
-    document.getElementById('t-minutes').innerText = String(minutes).padStart(2, '0');
-    document.getElementById('t-seconds').innerText = String(seconds).padStart(2, '0');
+    db.ref('events').push(newEvent)
+      .then(() => {
+        alert("Событие успешно добавлено в базу!");
+        toggleAdminModal(false);
+        document.getElementById('admTitle').value = '';
+        document.getElementById('admDesc').value = '';
+        document.getElementById('admLocation').value = '';
+        document.getElementById('admEventDate').value = '';
+        document.getElementById('admDeadline').value = '';
+      })
+      .catch(err => alert("Ошибка добавления: " + err.message));
   }
 
-  setInterval(updateTimer, 1000);
-  updateTimer();
+  /* ---------------- ЗАГРУЗКА И ОТОБРАЖЕНИЕ СОБЫТИЙ ИЗ FIREBASE ---------------- */
+  function formatDateString(isoString) {
+    if (!isoString) return '—';
+    const d = new Date(isoString);
+    return d.toLocaleString('ru-RU', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 
-  /* ---------------- АНИМАЦИИ SCROLL / СЦЕНЫ ---------------- */
+  db.ref('events').on('value', (snapshot) => {
+    const eventsContainer = document.getElementById('eventsContainer');
+    const liveBadge = document.getElementById('liveBadge');
+    if (!eventsContainer) return;
+    eventsContainer.innerHTML = '';
+
+    const eventsData = snapshot.val();
+    
+    // Если в базе еще нет созданных событий — отображаем дефолтный турнир 26 сентября в YES Фергана
+    if (!eventsData) {
+      const defaultEvent = {
+        title: "Очные Дебаты в Фергане",
+        desc: "Живой турнир по правилам MEHR Debates. Проверь свои навыки ораторского искусства и логики!",
+        location: "Учебный центр YES, г. Фергана",
+        eventDate: "2026-09-26T14:00",
+        deadline: "2026-09-25T23:59"
+      };
+      renderEventCard('default', defaultEvent);
+      if (liveBadge) {
+        liveBadge.innerHTML = `<span class="pulse-dot"></span> Ближайший турнир: Суббота, 26 сентября (14:00) — YES Fergana`;
+      }
+      return;
+    }
+
+    let eventArray = Object.keys(eventsData).map(key => ({ id: key, ...eventsData[key] }));
+    eventArray.sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate));
+
+    eventArray.forEach((ev) => {
+      renderEventCard(ev.id, ev);
+    });
+
+    if (eventArray.length > 0 && liveBadge) {
+      const closest = eventArray[0];
+      liveBadge.innerHTML = `<span class="pulse-dot"></span> Ближайший турнир: ${closest.title} — ${formatDateString(closest.eventDate)}`;
+    }
+  });
+
+  function renderEventCard(id, ev) {
+    const container = document.getElementById('eventsContainer');
+    if (!container) return;
+
+    const card = document.createElement('div');
+    card.className = 'featured-event-card';
+    card.innerHTML = `
+      <div class="event-badge">🔥 ТУРНИР / МЕРОПРИЯТИЕ</div>
+      <h2 class="featured-title">${ev.title}</h2>
+      <p class="featured-sub">${ev.desc}</p>
+      
+      <div class="event-details-grid">
+        <div class="detail-item">
+          <span class="icon">📍</span>
+          <div>
+            <strong>Место проведения:</strong>
+            <p>${ev.location}</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="icon">📅</span>
+          <div>
+            <strong>Дата и время:</strong>
+            <p>${formatDateString(ev.eventDate)}</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="icon">⏳</span>
+          <div>
+            <strong>Дедлайн подачи заявки:</strong>
+            <p>${formatDateString(ev.deadline)}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ТАЙМЕР -->
+      <div class="countdown-container">
+        <div class="countdown-title">До начала осталось:</div>
+        <div class="timer" id="timer-${id}">
+          <div><span class="t-d">00</span><label>дней</label></div>
+          <div><span class="t-h">00</span><label>часов</label></div>
+          <div><span class="t-m">00</span><label>минут</label></div>
+          <div><span class="t-s">00</span><label>секунд</label></div>
+        </div>
+      </div>
+
+      <button class="btn-gold event-btn" onclick="registerForEvent('${ev.title}')">Записаться на участие</button>
+    `;
+
+    container.appendChild(card);
+    startTimerForCard(id, ev.eventDate);
+  }
+
+  function startTimerForCard(id, targetIso) {
+    const targetDate = new Date(targetIso);
+
+    function update() {
+      const timerEl = document.getElementById(`timer-${id}`);
+      if (!timerEl) return;
+
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        timerEl.querySelector('.t-d').innerText = '00';
+        timerEl.querySelector('.t-h').innerText = '00';
+        timerEl.querySelector('.t-m').innerText = '00';
+        timerEl.querySelector('.t-s').innerText = '00';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      timerEl.querySelector('.t-d').innerText = String(days).padStart(2, '0');
+      timerEl.querySelector('.t-h').innerText = String(hours).padStart(2, '0');
+      timerEl.querySelector('.t-m').innerText = String(minutes).padStart(2, '0');
+      timerEl.querySelector('.t-s').innerText = String(seconds).padStart(2, '0');
+    }
+
+    setInterval(update, 1000);
+    update();
+  }
+
+  /* ---------------- АНИМАЦИИ SCROLL И КУРСОР ---------------- */
   const heroScene = document.getElementById('heroScene');
   const sunWrap = document.getElementById('sunWrap');
   const sunRays = document.querySelectorAll('#sunRays line');
@@ -768,25 +934,28 @@
   const houses = [document.getElementById('house1'), document.getElementById('house2')];
 
   function updateScene(){
+    if (!heroScene) return;
     const rect = heroScene.getBoundingClientRect();
     const total = heroScene.offsetHeight - window.innerHeight;
     
     let progress = -rect.top / total;
     progress = Math.min(Math.max(progress, 0), 1);
 
-    const screenP = Math.min(Math.max((progress - 0.1) / 0.15, 0), 1);
-    phoneScreen.style.opacity = 1 - screenP;
+    if (phoneScreen) phoneScreen.style.opacity = 1 - Math.min(Math.max((progress - 0.1) / 0.15, 0), 1);
 
-    const phoneP = Math.min(Math.max((progress - 0.2) / 0.2, 0), 1);
-    phoneGroup.style.opacity = 1 - phoneP;
-    phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
-    phoneGroup.style.transformOrigin = '110px 173px';
-    
-    personDark.style.opacity = 1 - phoneP;
-    personLight.style.opacity = phoneP;
+    if (phoneGroup) {
+      const phoneP = Math.min(Math.max((progress - 0.2) / 0.2, 0), 1);
+      phoneGroup.style.opacity = 1 - phoneP;
+      phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
+      phoneGroup.style.transformOrigin = '110px 173px';
+      if (personDark) personDark.style.opacity = 1 - phoneP;
+      if (personLight) personLight.style.opacity = phoneP;
+    }
 
-    const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
-    sunWrap.style.opacity = sunP;
+    if (sunWrap) {
+      const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
+      sunWrap.style.opacity = sunP;
+    }
     
     sunRays.forEach((ray, i) => {
       ray.style.transformOrigin = '150px 150px';
@@ -812,7 +981,6 @@
   window.addEventListener('resize', updateScene);
   updateScene();
 
-  /* ---------------- КУРСОР И REVEAL ---------------- */
   const glow = document.getElementById('cursorGlow');
   window.addEventListener('mousemove', (e) => {
     if(glow) {
