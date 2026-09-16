@@ -334,10 +334,9 @@
     <header>
         <a href="index.html" class="logo">MEHR</a>
         <div class="nav-links">
-            <span class="nav-link" onclick="openAdminAuth()">Админ Панель</span>
-            <span class="nav-link" onclick="openProfile()">Мой Профиль</span>
-            <a href="index.html" class="nav-link">На главную</a>
-        </div>
+    <span class="nav-link" onclick="openProfile()">Мой Профиль</span>
+    <a href="index.html" class="nav-link">На главную</a>
+</div>
     </header>
 
     <main>
@@ -411,6 +410,32 @@
     </div>
 
     <script>
+        // Вход по 5 быстрым кликам на логотип "MEHR"
+let logoClicks = 0;
+let logoTimer;
+
+document.querySelector('.logo').addEventListener('click', function(e) {
+    logoClicks++;
+    clearTimeout(logoTimer);
+
+    if (logoClicks >= 5) {
+        e.preventDefault(); // Запрещаем переход на главную при 5-м клике
+        logoClicks = 0;
+        openAdminAuth();
+    } else {
+        logoTimer = setTimeout(() => {
+            logoClicks = 0;
+        }, 1000);
+    }
+});
+
+// Вход по сочетанию клавиш (Ctrl + Shift + A)
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'a' || e.key === 'A' || e.key === 'ф' || e.key === 'Ф')) {
+        e.preventDefault();
+        openAdminAuth();
+    }
+});
         // Инициализация Firebase (Замените своими ключами при необходимости)
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
