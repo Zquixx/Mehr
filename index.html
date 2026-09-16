@@ -8,6 +8,7 @@
 <!-- Подключение Firebase SDK (Compat v9) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
 <style>
   :root{
@@ -64,19 +65,19 @@
     font-size:0.7rem;font-weight:700;color:#0b0f0c;
   }
 
-  /* Стили для Баннера и Меню Событий */
+  /* БАННЕР МЕРОПРИЯТИЯ */
   .events-section {
-    max-width: 1100px;
-    margin: 30px auto 10px;
+    max-width: 1000px;
+    margin: 40px auto 20px;
     padding: 0 20px;
   }
   .featured-event-card {
     background: linear-gradient(135deg, #121c14 0%, #080d09 100%);
     border: 2px solid var(--gold);
     border-radius: 16px;
-    padding: 30px;
+    padding: 35px;
     position: relative;
-    box-shadow: 0 10px 30px rgba(229, 193, 88, 0.1);
+    box-shadow: 0 10px 30px rgba(232, 200, 116, 0.1);
   }
   .event-badge {
     display: inline-block;
@@ -87,9 +88,10 @@
     padding: 5px 12px;
     border-radius: 20px;
     margin-bottom: 15px;
+    letter-spacing: 0.5px;
   }
   .featured-title {
-    font-size: 28px;
+    font-size: 30px;
     color: #fff;
     margin-bottom: 10px;
   }
@@ -104,7 +106,7 @@
     gap: 15px;
     margin-bottom: 25px;
     background: rgba(0,0,0,0.3);
-    padding: 15px;
+    padding: 18px;
     border-radius: 10px;
     border: 1px solid var(--border-color);
   }
@@ -117,17 +119,18 @@
   .detail-item strong { font-size: 13px; color: var(--gold); }
   .detail-item p { font-size: 14px; color: #fff; margin-top: 2px; }
 
-  /* Таймер */
+  /* ТАЙМЕР */
   .countdown-container {
     text-align: center;
-    margin: 20px 0;
+    margin: 30px 0 25px;
   }
   .countdown-title {
     font-size: 13px;
     color: var(--text-muted);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
   }
   .timer {
     display: flex;
@@ -135,23 +138,27 @@
     gap: 15px;
   }
   .timer div {
-    background: var(--card-bg);
+    background: rgba(18, 36, 26, 0.8);
     border: 1px solid var(--border-color);
-    padding: 8px 14px;
-    border-radius: 8px;
-    min-width: 65px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    min-width: 80px;
   }
   .timer span {
-    font-size: 22px;
+    font-size: 28px;
     font-weight: bold;
     color: var(--gold);
     display: block;
+    line-height: 1;
+    margin-bottom: 4px;
   }
   .timer label {
-    font-size: 10px;
+    font-size: 11px;
     color: var(--text-muted);
+    text-transform: lowercase;
   }
-  .btn-gold, .btn-action {
+
+  .btn-gold {
     background: var(--accent-gold);
     color: #0b0f0c;
     border: none;
@@ -160,51 +167,18 @@
     cursor: pointer;
     transition: 0.3s;
   }
-  .btn-gold:hover, .btn-action:hover {
+  .btn-gold:hover {
     background: #f2d588;
+    transform: translateY(-2px);
   }
   .event-btn {
     width: 100%;
-    padding: 14px;
+    padding: 16px;
     font-size: 16px;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
   }
 
-  /* Сетка мини-карточек событий */
-  .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-  }
-  .event-mini-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    padding: 20px;
-    border-radius: 12px;
-    position: relative;
-  }
-  .active-event {
-    border-color: var(--gold);
-  }
-  .mini-status {
-    font-size: 11px;
-    font-weight: bold;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .status-online { color: #3498db; }
-  .status-past { color: #7f8c8d; }
-  .event-mini-card h3 {
-    font-size: 16px;
-    margin-bottom: 8px;
-  }
-  .event-mini-card p {
-    font-size: 13px;
-    color: var(--text-muted);
-  }
-
-  /* AUTH MODAL */
+  /* MODALS */
   .auth-modal {
     display:none; 
     position:fixed; inset:0; 
@@ -217,13 +191,13 @@
     background:var(--bg-mid); 
     border:1px solid var(--accent-gold); 
     padding:30px; border-radius:16px; 
-    width:90%; max-width:400px; 
+    width:90%; max-width:420px; 
     text-align:center;
     box-shadow:0 8px 32px 0 rgba(0,0,0,0.5);
   }
-  .auth-box h2 { color:var(--accent-gold); margin-bottom:20px; }
+  .auth-box h2 { color:var(--accent-gold); margin-bottom:15px; }
   .auth-box input {
-    width:100%; padding:12px; margin-bottom:15px; 
+    width:100%; padding:12px; margin-bottom:12px; 
     border-radius:8px; border:1px solid var(--accent-green); 
     background:#0b0f0c; color:white; outline:none;
   }
@@ -231,7 +205,7 @@
     width:100%; padding:12px; 
     background:var(--accent-green); color:black; 
     font-weight:bold; border:none; border-radius:8px; 
-    cursor:pointer; margin-bottom:15px; transition:0.3s;
+    cursor:pointer; margin-top:5px; margin-bottom:15px; transition:0.3s;
   }
   .auth-btn:hover { background:#5fd684; }
   .auth-switch { color:var(--accent-gold); cursor:pointer; font-size:0.9rem; opacity:0.8; }
@@ -242,7 +216,7 @@
   }
   .close-modal:hover { opacity:1; }
 
-  /* HERO / SCROLL SCENE */
+  /* HERO SCENE */
   .hero{ height:300vh; position:relative; }
   .hero-sticky{
     position:sticky;top:0;height:100vh;
@@ -292,9 +266,7 @@
     opacity:0; pointer-events:none; z-index:0;
   }
   
-  .notebook{
-    position:absolute; width:110px;height:150px; opacity:0.35; z-index:0;
-  }
+  .notebook{ position:absolute; width:110px;height:150px; opacity:0.35; z-index:0; }
   .notebook svg{width:100%;height:100%;display:block;}
   .notebook-line{ stroke-dasharray:80; stroke-dashoffset:80; }
   
@@ -428,13 +400,14 @@
     nav ul li:not(.login-li){display:none;}
     .live-badge{ left:12px;right:12px;bottom:12px; font-size:0.78rem; justify-content:center; }
     .cursor-glow{display:none;}
+    .timer div { min-width: 65px; padding: 10px 12px; }
+    .timer span { font-size: 22px; }
   }
-  .goddess, .tree, .house, .ruin, .notebook { will-change: transform, opacity; }
 </style>
 </head>
 <body>
 
-<!-- Всплывающее окно авторизации/регистрации -->
+<!-- Всплывающее окно авторизации -->
 <div class="auth-modal" id="authModal">
   <div class="auth-box">
     <span class="close-modal" onclick="toggleAuthModal(false)">&times;</span>
@@ -446,10 +419,25 @@
   </div>
 </div>
 
+<!-- Модальное окно бронирования -->
+<div class="auth-modal" id="bookingModal">
+  <div class="auth-box">
+    <span class="close-modal" onclick="toggleBookingModal(false)">&times;</span>
+    <h2>Запись на мероприятие</h2>
+    <p id="bookingEventName" style="color: var(--accent-gold); margin-bottom: 15px; font-weight: 600; font-size: 0.95rem;"></p>
+    <input type="text" id="bookFirstName" placeholder="Имя" required>
+    <input type="text" id="bookLastName" placeholder="Фамилия" required>
+    <input type="tel" id="bookPhone" placeholder="Номер телефона (+998...)" required>
+    <input type="text" id="bookTelegram" placeholder="Юзер в Telegram (@username)" required>
+    <input type="number" id="bookAge" placeholder="Возраст" min="10" max="100" required>
+    <button class="auth-btn" onclick="submitBooking()">Забронировать место</button>
+  </div>
+</div>
+
 <div class="cursor-glow" id="cursorGlow"></div>
 
 <div class="live-badge">
-  <span class="pulse-dot"></span> Следующая акция: суббота, 10:00 (махалля)
+  <span class="pulse-dot"></span> Ближайший турнир: Суббота, 26 сентября (14:00) — YES Fergana
 </div>
 
 <nav>
@@ -457,7 +445,7 @@
   <ul>
     <li><a href="#mission">О нас</a></li>
     <li><a href="#directions">Направления</a></li>
-    <li><a href="#events">События</a></li>
+    <li><a href="#events">Дебаты</a></li>
     <li><a href="#gallery">Галерея</a></li>
     <li class="login-li"><a class="login-btn" id="loginToggleBtn" href="#"><span class="avatar">Z</span> Войти</a></li>
   </ul>
@@ -513,7 +501,7 @@
   <div class="mission reveal">
     <h2>Наша миссия</h2>
     <p>Mehr — молодёжное волонтёрское объединение, созданное учениками и студентами, которые не хотят ждать, пока изменения начнёт кто-то другой.</p>
-    <p style="margin-top:18px;">Мы не крупная организация с офисом и бюджетом — мы группа, которая начала с малого: один сайт, один Telegram-канал и желание сделать что-то настоящее.</p>
+    <p style="margin-top:18px;">Мы не крупная организация с офисом и бюджетом — мы группа, которая началась с малого: один сайт, один Telegram-канал и желание сделать что-то настоящее.</p>
   </div>
   <div class="stats reveal">
     <div class="stat"><div class="num">20</div><div class="label">активных волонтёров в команде</div></div>
@@ -539,7 +527,7 @@
     <div class="card reveal">
       <div class="icon">💬</div><h3>Диалог и дебаты</h3>
       <p>Организуем открытые дебаты и дискуссионные встречи на актуальные темы.</p>
-      <a href="debates.html">К дебатам</a>
+      <a href="#events">К дебатам</a>
     </div>
     <div class="card reveal">
       <div class="icon">🎓</div><h3>Образование и поступление</h3>
@@ -549,7 +537,7 @@
   </div>
 </section>
 
-<!-- СЕКЦИЯ СОБЫТИЙ -->
+<!-- СЕКЦИЯ СОБЫТИЯ (ЕДИНСТВЕННОЕ МЕРОПРИЯТИЕ) -->
 <section class="events-section" id="events">
   <div class="events-container">
     <div class="featured-event-card">
@@ -569,7 +557,7 @@
           <span class="icon">📅</span>
           <div>
             <strong>Дата и время:</strong>
-            <p>Суббота (15:00)</p>
+            <p>Суббота, 26 сентября (14:00)</p>
           </div>
         </div>
         <div class="detail-item">
@@ -581,41 +569,18 @@
         </div>
       </div>
 
+      <!-- ТАЙМЕР ОБРАТНОГО ОТСЧЕТА -->
       <div class="countdown-container">
         <div class="countdown-title">До начала осталось:</div>
-        <div class="timer" id="eventTimer">
+        <div class="timer">
           <div><span id="t-days">00</span><label>дней</label></div>
           <div><span id="t-hours">00</span><label>часов</label></div>
-          <div><span id="t-mins">00</span><label>минут</label></div>
-          <div><span id="t-secs">00</span><label>секунд</label></div>
+          <div><span id="t-minutes">00</span><label>минут</label></div>
+          <div><span id="t-seconds">00</span><label>секунд</label></div>
         </div>
       </div>
 
-      <button class="btn-gold event-btn" onclick="registerForEvent('Дебаты в YES Фергана')">Записаться на участие</button>
-    </div>
-
-    <h2 class="section-title" style="margin-top: 50px; text-align: center; color: var(--accent-gold);">Календарь и Меню Событий</h2>
-    <div class="events-grid" style="margin-top: 20px;">
-      <div class="event-mini-card active-event">
-        <div class="mini-status">Предстоящее</div>
-        <h3>Очный турнир в YES Fergana</h3>
-        <p>📍 УЦ YES | 📅 Суббота</p>
-        <button class="btn-action" style="width: 100%; margin-top: 15px; padding: 10px;" onclick="registerForEvent('YES Fergana')">Участвовать</button>
-      </div>
-
-      <div class="event-mini-card">
-        <div class="mini-status status-online">Онлайн</div>
-        <h3>Онлайн-Сессия: Техники Контраргументации</h3>
-        <p>📍 Discord / Zoom | 📅 Вторник, 18:00</p>
-        <button class="btn-action" style="width: 100%; margin-top: 15px; padding: 10px;" onclick="registerForEvent('Онлайн-Сессия')">Записаться</button>
-      </div>
-
-      <div class="event-mini-card">
-        <div class="mini-status status-past">Завершено</div>
-        <h3>Открытый кубок MEHR Fall 2026</h3>
-        <p>📍 Главный зал | 🏆 Победитель: Команда «Защита»</p>
-        <button class="btn-action" style="width: 100%; margin-top: 15px; padding: 10px; background: #222; color: #888;" disabled>Архив</button>
-      </div>
+      <button class="btn-gold event-btn" onclick="registerForEvent('Очные Дебаты в YES Фергана')">Записаться на участие</button>
     </div>
   </div>
 </section>
@@ -635,7 +600,7 @@
 </footer>
 
 <script>
-  /* ---------------- FIREBASE АВТОРИЗАЦИЯ ---------------- */
+  /* ---------------- FIREBASE ИНИЦИАЛИЗАЦИЯ ---------------- */
   const firebaseConfig = {
     apiKey: "AIzaSyCCrGEsruUXdx_eD-5TC5HD75gaCp-IKSc",
     authDomain: "mehr-debates.firebaseapp.com",
@@ -649,7 +614,9 @@
 
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
+  const db = firebase.database();
 
+  /* ---------------- АВТОРИЗАЦИЯ ---------------- */
   const authModal = document.getElementById('authModal');
   const authTitle = document.getElementById('authTitle');
   const authBtn = document.getElementById('authBtn');
@@ -705,6 +672,86 @@
       };
     }
   });
+
+  /* ---------------- БРОНИРОВАНИЕ МЕРОПРИЯТИЙ ---------------- */
+  const bookingModal = document.getElementById('bookingModal');
+  let currentSelectedEvent = '';
+
+  function registerForEvent(eventName) {
+    currentSelectedEvent = eventName;
+    document.getElementById('bookingEventName').innerText = eventName;
+    bookingModal.style.display = 'flex';
+  }
+
+  function toggleBookingModal(show) {
+    bookingModal.style.display = show ? 'flex' : 'none';
+  }
+
+  function submitBooking() {
+    const firstName = document.getElementById('bookFirstName').value.trim();
+    const lastName = document.getElementById('bookLastName').value.trim();
+    const phone = document.getElementById('bookPhone').value.trim();
+    const telegram = document.getElementById('bookTelegram').value.trim();
+    const age = document.getElementById('bookAge').value.trim();
+
+    if (!firstName || !lastName || !phone || !telegram || !age) {
+      alert("Пожалуйста, заполните все поля формы.");
+      return;
+    }
+
+    const bookingData = {
+      eventName: currentSelectedEvent,
+      firstName: firstName,
+      lastName: lastName,
+      phone: phone,
+      telegram: telegram,
+      age: age,
+      date: new Date().toLocaleString()
+    };
+
+    db.ref('registrations').push(bookingData)
+      .then(() => {
+        alert(`Спасибо, ${firstName}! Ваше место на "${currentSelectedEvent}" успешно забронировано.`);
+        toggleBookingModal(false);
+        document.getElementById('bookFirstName').value = '';
+        document.getElementById('bookLastName').value = '';
+        document.getElementById('bookPhone').value = '';
+        document.getElementById('bookTelegram').value = '';
+        document.getElementById('bookAge').value = '';
+      })
+      .catch((error) => {
+        alert("Ошибка при сохранении: " + error.message);
+      });
+  }
+
+  /* ---------------- ЛОГИКА ТАЙМЕРА ДО 26 СЕНТЯБРЯ 14:00 ---------------- */
+  const targetDate = new Date('2026-09-26T14:00:00');
+
+  function updateTimer() {
+    const now = new Date();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+      document.getElementById('t-days').innerText = '00';
+      document.getElementById('t-hours').innerText = '00';
+      document.getElementById('t-minutes').innerText = '00';
+      document.getElementById('t-seconds').innerText = '00';
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    document.getElementById('t-days').innerText = String(days).padStart(2, '0');
+    document.getElementById('t-hours').innerText = String(hours).padStart(2, '0');
+    document.getElementById('t-minutes').innerText = String(minutes).padStart(2, '0');
+    document.getElementById('t-seconds').innerText = String(seconds).padStart(2, '0');
+  }
+
+  setInterval(updateTimer, 1000);
+  updateTimer();
 
   /* ---------------- АНИМАЦИИ SCROLL / СЦЕНЫ ---------------- */
   const heroScene = document.getElementById('heroScene');
@@ -782,11 +829,6 @@
   }
   window.addEventListener('scroll', checkReveal);
   checkReveal();
-
-  /* ---------------- ОБРАБОТКА СОБЫТИЙ ---------------- */
-  function registerForEvent(eventName) {
-    alert("Вы записались на событие: " + eventName);
-  }
 </script>
 </body>
 </html>
