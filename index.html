@@ -16,6 +16,10 @@
     --accent-gold:#e8c874;
     --accent-green:#4caf6b;
     --text-light:#f2f2ea;
+    --gold:#e8c874;
+    --text-muted:#a0a8a0;
+    --card-bg:#12241a;
+    --border-color:rgba(232, 200, 116, 0.2);
   }
   *{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
@@ -58,6 +62,146 @@
     background:var(--accent-green);
     display:flex;align-items:center;justify-content:center;
     font-size:0.7rem;font-weight:700;color:#0b0f0c;
+  }
+
+  /* Стили для Баннера и Меню Событий */
+  .events-section {
+    max-width: 1100px;
+    margin: 30px auto 10px;
+    padding: 0 20px;
+  }
+  .featured-event-card {
+    background: linear-gradient(135deg, #121c14 0%, #080d09 100%);
+    border: 2px solid var(--gold);
+    border-radius: 16px;
+    padding: 30px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(229, 193, 88, 0.1);
+  }
+  .event-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: #000;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 15px;
+  }
+  .featured-title {
+    font-size: 28px;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  .featured-sub {
+    color: var(--text-muted);
+    font-size: 15px;
+    margin-bottom: 25px;
+  }
+  .event-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+  }
+  .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .detail-item .icon { font-size: 24px; }
+  .detail-item strong { font-size: 13px; color: var(--gold); }
+  .detail-item p { font-size: 14px; color: #fff; margin-top: 2px; }
+
+  /* Таймер */
+  .countdown-container {
+    text-align: center;
+    margin: 20px 0;
+  }
+  .countdown-title {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .timer {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+  .timer div {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-radius: 8px;
+    min-width: 65px;
+  }
+  .timer span {
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--gold);
+    display: block;
+  }
+  .timer label {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .btn-gold, .btn-action {
+    background: var(--accent-gold);
+    color: #0b0f0c;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .btn-gold:hover, .btn-action:hover {
+    background: #f2d588;
+  }
+  .event-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* Сетка мини-карточек событий */
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .event-mini-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+  }
+  .active-event {
+    border-color: var(--gold);
+  }
+  .mini-status {
+    font-size: 11px;
+    font-weight: bold;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .status-online { color: #3498db; }
+  .status-past { color: #7f8c8d; }
+  .event-mini-card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .event-mini-card p {
+    font-size: 13px;
+    color: var(--text-muted);
   }
 
   /* AUTH MODAL */
@@ -313,8 +457,8 @@
   <ul>
     <li><a href="#mission">О нас</a></li>
     <li><a href="#directions">Направления</a></li>
+    <li><a href="#events">События</a></li>
     <li><a href="#gallery">Галерея</a></li>
-    <li><a href="#join">Присоединиться</a></li>
     <li class="login-li"><a class="login-btn" id="loginToggleBtn" href="#"><span class="avatar">Z</span> Войти</a></li>
   </ul>
 </nav>
@@ -395,196 +539,254 @@
     <div class="card reveal">
       <div class="icon">💬</div><h3>Диалог и дебаты</h3>
       <p>Организуем открытые дебаты и дискуссионные встречи на актуальные темы.</p>
-        <a href="debates.html" class="btn">К дебатам</a>
-      </div>
-      <div class="card reveal">
-        <div class="icon">🎓</div><h3>Образование и поступление</h3>
-        <p>Помогаем школьникам разобраться, как поступить в университет и оформить заявку.</p>
-        <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
-      </div>
+      <a href="debates.html">К дебатам</a>
     </div>
-  </section>
-
-  <!-- GALLERY -->
-  <section class="info" id="gallery">
-    <div class="mission reveal"><h2>Галерея акций</h2></div>
-    <div class="gallery-grid reveal">
-      <div class="photo-card"><div class="photo-fill" style="background:url('images/photo1.jpg') center/cover;"></div><div class="photo-overlay"><span>Форум «Тинчлик Чемпионлари»</span></div></div>
-      <div class="photo-card"><div class="photo-fill" style="background:url('images/photo2.jpg') center/cover;"></div><div class="photo-overlay"><span>Наши волонтёры на мероприятии</span></div></div>
-      <div class="photo-card"><div class="photo-fill" style="background:url('images/photo3.jpg') center/cover;"></div><div class="photo-overlay"><span>Посадка деревьев с местными жителями</span></div></div>
+    <div class="card reveal">
+      <div class="icon">🎓</div><h3>Образование и поступление</h3>
+      <p>Помогаем школьникам разобраться, как поступить в университет и оформить заявку.</p>
+      <a href="https://t.me/MEHRVOLUNTEER" target="_blank">Присоединиться</a>
     </div>
-  </section>
+  </div>
+</section>
 
-  <footer>
-    © 2026 Mehr. Сделано с заботой двух друзей, которые верят в большие перемены.
-  </footer>
-
-  <script>
-    /* ---------------- FIREBASE АВТОРИЗАЦИЯ ---------------- */
-    const firebaseConfig = {
-      apiKey: "AIzaSyCCrGEsruUXdx_eD-5TC5HD75gaCp-IKSc",
-      authDomain: "mehr-debates.firebaseapp.com",
-      databaseURL: "https://mehr-debates-default-rtdb.firebaseio.com",
-      projectId: "mehr-debates",
-      storageBucket: "mehr-debates.firebasestorage.app",
-      messagingSenderId: "261343927171",
-      appId: "1:261343927171:web:b068906caa12acfe55f4b6",
-      measurementId: "G-8XCK5V2LDT"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    const authModal = document.getElementById('authModal');
-    const authTitle = document.getElementById('authTitle');
-    const authBtn = document.getElementById('authBtn');
-    const authSwitch = document.getElementById('authSwitch');
-    const loginToggleBtn = document.getElementById('loginToggleBtn');
-
-    let isLogin = true;
-
-    function toggleAuthModal(show) {
-      authModal.style.display = show ? 'flex' : 'none';
-    }
-
-    authSwitch.onclick = () => {
-      isLogin = !isLogin;
-      authTitle.innerText = isLogin ? 'Вход' : 'Регистрация';
-      authBtn.innerText = isLogin ? 'Войти' : 'Зарегистрироваться';
-      authSwitch.innerText = isLogin ? 'Нет аккаунта? Зарегистрируйся' : 'Уже есть аккаунт? Войти';
-    };
-
-    function handleAuth() {
-      const email = document.getElementById('authEmail').value;
-      const pass = document.getElementById('authPass').value;
+<!-- СЕКЦИЯ СОБЫТИЙ -->
+<section class="events-section" id="events">
+  <div class="events-container">
+    <div class="featured-event-card">
+      <div class="event-badge">🔥 БЛИЖАЙШИЙ ТУРНИР</div>
+      <h2 class="featured-title">Очные Дебаты в Фергане</h2>
+      <p class="featured-sub">Живой турнир по правилам MEHR Debates. Проверь свои навыки ораторского искусства и логики!</p>
       
-      if (!email || !pass) {
-        alert("Пожалуйста, заполните все поля");
-        return;
-      }
+      <div class="event-details-grid">
+        <div class="detail-item">
+          <span class="icon">📍</span>
+          <div>
+            <strong>Локация:</strong>
+            <p>Учебный центр YES, г. Фергана</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="icon">📅</span>
+          <div>
+            <strong>Дата и время:</strong>
+            <p>Суббота (15:00)</p>
+          </div>
+        </div>
+        <div class="detail-item">
+          <span class="icon">👥</span>
+          <div>
+            <strong>Формат:</strong>
+            <p>Очный турнир / Командный</p>
+          </div>
+        </div>
+      </div>
 
-      if(isLogin) {
-        auth.signInWithEmailAndPassword(email, pass)
-          .then(() => toggleAuthModal(false))
-          .catch(err => alert("Ошибка входа: " + err.message));
-      } else {
-        auth.createUserWithEmailAndPassword(email, pass)
-          .then(() => toggleAuthModal(false))
-          .catch(err => alert("Ошибка регистрации: " + err.message));
-      }
+      <div class="countdown-container">
+        <div class="countdown-title">До начала осталось:</div>
+        <div class="timer" id="eventTimer">
+          <div><span id="t-days">00</span><label>дней</label></div>
+          <div><span id="t-hours">00</span><label>часов</label></div>
+          <div><span id="t-mins">00</span><label>минут</label></div>
+          <div><span id="t-secs">00</span><label>секунд</label></div>
+        </div>
+      </div>
+
+      <button class="btn-gold event-btn" onclick="registerForEvent('Дебаты в YES Фергана')">Записаться на участие</button>
+    </div>
+
+    <h2 class="section-title" style="margin-top: 50px; text-align: center; color: var(--accent-gold);">Календарь и Меню Событий</h2>
+    <div class="events-grid" style="margin-top: 20px;">
+      <div class="event-mini-card active-event">
+        <div class="mini-status">Предстоящее</div>
+        <h3>Очный турнир в YES Fergana</h3>
+        <p>📍 УЦ YES | 📅 Суббота</p>
+        <button class="btn-action" style="width: 100%; margin-top: 15px; padding: 10px;" onclick="registerForEvent('YES Fergana')">Участвовать</button>
+      </div>
+
+      <div class="event-mini-card">
+        <div class="mini-status status-online">Онлайн</div>
+        <h3>Онлайн-Сессия: Техники Контраргументации</h3>
+        <p>📍 Discord / Zoom | 📅 Вторник, 18:00</p>
+        <button class="btn-action" style="width: 100%; margin-top: 15px; padding: 10px;" onclick="registerForEvent('Онлайн-Сессия')">Записаться</button>
+      </div>
+
+      <div class="event-mini-card">
+        <div class="mini-status status-past">Завершено</div>
+        <h3>Открытый кубок MEHR Fall 2026</h3>
+        <p>📍 Главный зал | 🏆 Победитель: Команда «Защита»</p>
+        <button class="btn-action" style="width: 100%; margin-top: 15px; padding: 10px; background: #222; color: #888;" disabled>Архив</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="info" id="gallery">
+  <div class="mission reveal"><h2>Галерея акций</h2></div>
+  <div class="gallery-grid reveal">
+    <div class="photo-card"><div class="photo-fill" style="background:url('images/photo1.jpg') center/cover;"></div><div class="photo-overlay"><span>Форум «Тинчлик Чемпионлари»</span></div></div>
+    <div class="photo-card"><div class="photo-fill" style="background:url('images/photo2.jpg') center/cover;"></div><div class="photo-overlay"><span>Наши волонтёры на мероприятии</span></div></div>
+    <div class="photo-card"><div class="photo-fill" style="background:url('images/photo3.jpg') center/cover;"></div><div class="photo-overlay"><span>Посадка деревьев с местными жителями</span></div></div>
+  </div>
+</section>
+
+<footer>
+  © 2026 Mehr. Сделано с заботой двух друзей, которые верят в большие перемены.
+</footer>
+
+<script>
+  /* ---------------- FIREBASE АВТОРИЗАЦИЯ ---------------- */
+  const firebaseConfig = {
+    apiKey: "AIzaSyCCrGEsruUXdx_eD-5TC5HD75gaCp-IKSc",
+    authDomain: "mehr-debates.firebaseapp.com",
+    databaseURL: "https://mehr-debates-default-rtdb.firebaseio.com",
+    projectId: "mehr-debates",
+    storageBucket: "mehr-debates.firebasestorage.app",
+    messagingSenderId: "261343927171",
+    appId: "1:261343927171:web:b068906caa12acfe55f4b6",
+    measurementId: "G-8XCK5V2LDT"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+
+  const authModal = document.getElementById('authModal');
+  const authTitle = document.getElementById('authTitle');
+  const authBtn = document.getElementById('authBtn');
+  const authSwitch = document.getElementById('authSwitch');
+  const loginToggleBtn = document.getElementById('loginToggleBtn');
+
+  let isLogin = true;
+
+  function toggleAuthModal(show) {
+    authModal.style.display = show ? 'flex' : 'none';
+  }
+
+  authSwitch.onclick = () => {
+    isLogin = !isLogin;
+    authTitle.innerText = isLogin ? 'Вход' : 'Регистрация';
+    authBtn.innerText = isLogin ? 'Войти' : 'Зарегистрироваться';
+    authSwitch.innerText = isLogin ? 'Нет аккаунта? Зарегистрируйся' : 'Уже есть аккаунт? Войти';
+  };
+
+  function handleAuth() {
+    const email = document.getElementById('authEmail').value;
+    const pass = document.getElementById('authPass').value;
+    
+    if (!email || !pass) {
+      alert("Пожалуйста, заполните все поля");
+      return;
     }
 
-    // Отслеживание состояния пользователя
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        // Пользователь вошел
-        let firstLetter = user.email.charAt(0).toUpperCase();
-        loginToggleBtn.innerHTML = `<span class="avatar">${firstLetter}</span> Выйти`;
-        loginToggleBtn.onclick = (e) => {
-          e.preventDefault();
-          auth.signOut();
-        };
-      } else {
-        // Пользователь не вошел
-        loginToggleBtn.innerHTML = `<span class="avatar">Z</span> Войти`;
-        loginToggleBtn.onclick = (e) => {
-          e.preventDefault();
-          toggleAuthModal(true);
-        };
-      }
+    if(isLogin) {
+      auth.signInWithEmailAndPassword(email, pass)
+        .then(() => toggleAuthModal(false))
+        .catch(err => alert("Ошибка входа: " + err.message));
+    } else {
+      auth.createUserWithEmailAndPassword(email, pass)
+        .then(() => toggleAuthModal(false))
+        .catch(err => alert("Ошибка регистрации: " + err.message));
+    }
+  }
+
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      let firstLetter = user.email.charAt(0).toUpperCase();
+      loginToggleBtn.innerHTML = `<span class="avatar">${firstLetter}</span> Выйти`;
+      loginToggleBtn.onclick = (e) => {
+        e.preventDefault();
+        auth.signOut();
+      };
+    } else {
+      loginToggleBtn.innerHTML = `<span class="avatar">Z</span> Войти`;
+      loginToggleBtn.onclick = (e) => {
+        e.preventDefault();
+        toggleAuthModal(true);
+      };
+    }
+  });
+
+  /* ---------------- АНИМАЦИИ SCROLL / СЦЕНЫ ---------------- */
+  const heroScene = document.getElementById('heroScene');
+  const sunWrap = document.getElementById('sunWrap');
+  const sunRays = document.querySelectorAll('#sunRays line');
+  const cracks = [document.getElementById('crack1'), document.getElementById('crack2'), document.getElementById('crack3')];
+  
+  const phoneGroup = document.getElementById('phoneGroup');
+  const phoneScreen = document.getElementById('phoneScreen');
+  const personDark = document.getElementById('personDark');
+  const personLight = document.getElementById('personLight');
+
+  const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
+  const houses = [document.getElementById('house1'), document.getElementById('house2')];
+
+  function updateScene(){
+    const rect = heroScene.getBoundingClientRect();
+    const total = heroScene.offsetHeight - window.innerHeight;
+    
+    let progress = -rect.top / total;
+    progress = Math.min(Math.max(progress, 0), 1);
+
+    const screenP = Math.min(Math.max((progress - 0.1) / 0.15, 0), 1);
+    phoneScreen.style.opacity = 1 - screenP;
+
+    const phoneP = Math.min(Math.max((progress - 0.2) / 0.2, 0), 1);
+    phoneGroup.style.opacity = 1 - phoneP;
+    phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
+    phoneGroup.style.transformOrigin = '110px 173px';
+    
+    personDark.style.opacity = 1 - phoneP;
+    personLight.style.opacity = phoneP;
+
+    const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
+    sunWrap.style.opacity = sunP;
+    
+    sunRays.forEach((ray, i) => {
+      ray.style.transformOrigin = '150px 150px';
+      ray.style.transform = `rotate(${progress * 180 + i * 10}deg)`;
     });
 
-
-    /* ---------------- АНИМАЦИИ SCROLL / СЦЕНЫ ---------------- */
-    const heroScene = document.getElementById('heroScene');
-    const sunWrap = document.getElementById('sunWrap');
-    const sunRays = document.querySelectorAll('#sunRays line');
-    const sunLight = document.getElementById('sunLight');
-    const cracks = [document.getElementById('crack1'), document.getElementById('crack2'), document.getElementById('crack3')];
-    const notebookLines = document.querySelectorAll('.notebook-line');
-    
-    const phoneGroup = document.getElementById('phoneGroup');
-    const phoneScreen = document.getElementById('phoneScreen');
-    const personDark = document.getElementById('personDark');
-    const personLight = document.getElementById('personLight');
-
-    const trees = [document.getElementById('tree1'), document.getElementById('tree2'), document.getElementById('tree3')];
-    const houses = [document.getElementById('house1'), document.getElementById('house2')];
-
-    function updateScene(){
-      const rect = heroScene.getBoundingClientRect();
-      const total = heroScene.offsetHeight - window.innerHeight;
-      
-      let progress = -rect.top / total;
-      progress = Math.min(Math.max(progress, 0), 1);
-
-      const screenP = Math.min(Math.max((progress - 0.1) / 0.15, 0), 1);
-      phoneScreen.style.opacity = 1 - screenP;
-
-      const phoneP = Math.min(Math.max((progress - 0.2) / 0.2, 0), 1);
-      phoneGroup.style.opacity = 1 - phoneP;
-      phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
-      phoneGroup.style.transformOrigin = '110px 173px';
-      
-      personDark.style.opacity = 1 - phoneP;
-      personLight.style.opacity = phoneP;
-
-      const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
-      sunWrap.style.opacity = sunP;
-      sunRays.forEach((ray, i) => {
-        const rayStart = sunP - i * 0.05;
-        ray.style.opacity = Math.min(Math.max(rayStart * 2, 0), 1);
-      });
-      sunLight.style.opacity = sunP;
-
-      cracks.forEach((crack, i) => {
-        const start = 0.1 + i * 0.08;
-        const p = Math.min(Math.max((progress - start) / 0.3, 0), 1);
-        crack.style.opacity = 1 - p;
-      });
-
-      notebookLines.forEach((line, i) => {
-        const start = 0.15 + i * 0.07;
-        const p = Math.min(Math.max((progress - start) / 0.2, 0), 1);
-        line.style.strokeDashoffset = 80 * (1 - p);
-      });
-
-      trees.forEach((tree, i) => {
-        const start = 0.5 + i * 0.12;
-        const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
-        tree.style.opacity = p;
-        tree.style.transform = `translateY(${40 * (1 - p)}px) scale(${0.6 + p * 0.4})`;
-      });
-
-      houses.forEach((house, i) => {
-        const start = 0.75 + i * 0.1;
-        const p = Math.min(Math.max((progress - start) / 0.25, 0), 1);
-        house.style.opacity = p;
-        house.style.transform = `translateY(${50 * (1 - p)}px) scale(${0.5 + p * 0.5})`;
-      });
-    }
-
-    window.addEventListener('scroll', updateScene);
-    updateScene();
-
-    const cursorGlow = document.getElementById('cursorGlow') || document.querySelector('.cursor-glow');
-    let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-
-    window.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
-
-    function animateCursor() {
-      if (cursorGlow && window.innerWidth > 768) {
-        cursorGlow.style.transform = `translate(${mouseX - 175}px, ${mouseY - 175}px)`;
+    cracks.forEach((c) => { if(c) c.style.opacity = 1 - progress; });
+    trees.forEach((t) => {
+      if(t) {
+        t.style.opacity = progress;
+        t.style.transform = `translateY(${(1 - progress) * 40}px) scale(${0.6 + progress * 0.4})`;
       }
-      requestAnimationFrame(animateCursor);
-    }
-    animateCursor();
+    });
+    houses.forEach((h) => {
+      if(h) {
+        h.style.opacity = progress;
+        h.style.transform = `translateY(${(1 - progress) * 50}px) scale(${0.5 + progress * 0.5})`;
+      }
+    });
+  }
 
-    const revealEls = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => { if(entry.isIntersecting){ entry.target.classList.add('visible'); } });
-    }, {threshold:0.15});
-    revealEls.forEach(el => observer.observe(el));
-  </script>
+  window.addEventListener('scroll', updateScene);
+  window.addEventListener('resize', updateScene);
+  updateScene();
+
+  /* ---------------- КУРСОР И REVEAL ---------------- */
+  const glow = document.getElementById('cursorGlow');
+  window.addEventListener('mousemove', (e) => {
+    if(glow) {
+      glow.style.transform = `translate(${e.clientX - 175}px, ${e.clientY - 175}px)`;
+    }
+  });
+
+  const reveals = document.querySelectorAll('.reveal');
+  function checkReveal() {
+    reveals.forEach(el => {
+      const top = el.getBoundingClientRect().top;
+      if(top < window.innerHeight - 100) el.classList.add('visible');
+    });
+  }
+  window.addEventListener('scroll', checkReveal);
+  checkReveal();
+
+  /* ---------------- ОБРАБОТКА СОБЫТИЙ ---------------- */
+  function registerForEvent(eventName) {
+    alert("Вы записались на событие: " + eventName);
+  }
+</script>
 </body>
 </html>
