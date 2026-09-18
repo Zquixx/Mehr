@@ -728,6 +728,20 @@
     </div>
 
     <script>
+    let clickCount = 0;
+const titleElement = document.querySelector('.modal-content h2'); // Ваш заголовок
+
+titleElement.addEventListener('click', () => {
+    clickCount++;
+    if (clickCount === 3) {
+        clickCount = 0;
+        openAdminPanel(); // Функция открытия вашей админки
+    }
+    
+    // Сбрасываем счетчик, если пользователь долго не кликал
+    setTimeout(() => { clickCount = 0; }, 1000);
+});
+    
     let currentRoomId = null;
     let currentUser = localStorage.getItem('mehr_username') || 'Zquixx';
     let timerInterval = null;
