@@ -58,6 +58,7 @@
             color: var(--gold);
             letter-spacing: 2px;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .nav-links {
@@ -226,6 +227,30 @@
             background: var(--gold-hover);
         }
 
+        .role-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .role-btn {
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: #fff;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .role-btn:hover {
+            border-color: var(--gold);
+            background: #18261c;
+        }
+
         /* Панель администратора */
         .admin-modal {
             max-width: 650px;
@@ -334,9 +359,9 @@
     <header>
         <a href="index.html" class="logo">MEHR</a>
         <div class="nav-links">
-    <span class="nav-link" onclick="openProfile()">Мой Профиль</span>
-    <a href="index.html" class="nav-link">На главную</a>
-</div>
+            <span class="nav-link" onclick="openProfile()">Мой Профиль</span>
+            <a href="index.html" class="nav-link">На главную</a>
+        </div>
     </header>
 
     <main>
@@ -345,6 +370,22 @@
             <!-- Список комнат будет рендериться динамически -->
         </div>
     </main>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ВЫБОР РОЛИ -->
+    <div class="modal-overlay" id="joinModal">
+        <div class="modal-card">
+            <h2 id="joinRoomTitle" style="font-size: 22px; margin-bottom: 10px;">Выбор роли</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 15px;" id="joinRoomStatus"></p>
+            
+            <div class="role-btn-group">
+                <button class="role-btn" style="color: #4caf6b;" onclick="selectRole('Защита')">🛡️ Занять сторону Защиты</button>
+                <button class="role-btn" style="color: #e74c3c;" onclick="selectRole('Атака')">⚔️ Занять сторону Атаки</button>
+                <button class="role-btn" style="color: #e5c158;" onclick="selectRole('Зритель')">👁️ Войти как Зритель</button>
+            </div>
+
+            <button class="btn-gold" style="background: #222; color: #fff;" onclick="closeJoinModal()">Отмена</button>
+        </div>
+    </div>
 
     <!-- МОДАЛЬНОЕ ОКНО: ЛИЧНЫЙ ПРОФИЛЬ -->
     <div class="modal-overlay" id="profileModal">
@@ -445,7 +486,8 @@ document.addEventListener('keydown', function(e) {
         openAdminAuth();
     }
 });
-        // Инициализация Firebase (Замените своими ключами при необходимости)
+
+        // Инициализация Firebase
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -456,7 +498,9 @@ document.addEventListener('keydown', function(e) {
             appId: "1:123456789:web:abcdef"
         };
 
-        // Локальное хранилище-заглушка на случай отсутствии подключения к Firebase
+        let selectedRoomId = null;
+
+        // Локальное хранилище-заглушка
         let debatesData = JSON.parse(localStorage.getItem('mehr_debates')) || [
             {
                 id: '1',
@@ -514,7 +558,7 @@ document.addEventListener('keydown', function(e) {
                         <span>🛡️ Защита: ${item.scoreDef}</span>
                         <span>⚔️ Атака: ${item.scoreAtk}</span>
                     </div>
-                    <button class="btn-gold" style="width: 100%; font-size: 14px; padding: 10px;">Присоединиться</button>
+                    <button class="btn-gold" style="width: 100%; font-size: 14px; padding: 10px;" onclick="openJoinModal('${item.id}')">Присоединиться</button>
                 `;
                 grid.appendChild(card);
             });
@@ -522,6 +566,7 @@ document.addEventListener('keydown', function(e) {
 
         function renderAdmin() {
             const list = document.getElementById('adminRoomsList');
+            if (!list) return;
             list.innerHTML = '';
 
             debatesData.forEach(item => {
@@ -554,6 +599,26 @@ document.addEventListener('keydown', function(e) {
                 `;
                 list.appendChild(room);
             });
+        }
+
+        // Выбор роли и открытие окна
+        function openJoinModal(id) {
+            const item = debatesData.find(d => d.id === id);
+            if (!item) return;
+            selectedRoomId = id;
+            document.getElementById('joinRoomTitle').innerText = item.title;
+            document.getElementById('joinRoomStatus').innerText = `Текущий статус: ${item.status}`;
+            document.getElementById('joinModal').classList.add('active');
+        }
+
+        function closeJoinModal() {
+            document.getElementById('joinModal').classList.remove('active');
+        }
+
+        function selectRole(role) {
+            const item = debatesData.find(d => d.id === selectedRoomId);
+            alert(`Вы вошли в дебаты:\n"${item.title}"\nВаша роль: ${role}`);
+            closeJoinModal();
         }
 
         // Операции панели управления
@@ -621,8 +686,7 @@ document.addEventListener('keydown', function(e) {
 
         function checkAdminPass() {
             const pass = document.getElementById('adminPassInput').value;
-            // Стандартный пароль админа: admin123
-            if (pass === 'admin123' || pass === 'admin') {
+            if (pass === '20108586' || pass === 'admin123' || pass === 'admin') {
                 closeAdminAuth();
                 document.getElementById('adminModal').classList.add('active');
             } else {
