@@ -707,7 +707,7 @@
     <div class="modal-overlay" id="profileModal">
         <div class="modal-card">
             <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 5px;">
-                <h2 style="font-size: 22px; color: var(--gold);" id="profName">Ziyod</h2>
+                <h2 style="font-size: 22px; color: var(--gold);" id="profName"></h2>
                 <span onclick="openAdminAuth(); closeProfile();" style="cursor: pointer; font-size: 18px;" title="Войти в админку">⚙️</span>
             </div>
             <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 13px;">Участник платформы Mehr Debates</p>
@@ -733,6 +733,16 @@
     let timerInterval = null;
     let logoClickCount = 0;
     let logoClickTimer = null;
+
+    // Функция открытия профиля (обновляет имя и открывает модальное окно)
+    function openProfile() { 
+        document.getElementById('profName').innerText = currentUser;
+        document.getElementById('profileModal').classList.add('active'); 
+    }
+
+    function closeProfile() { 
+        document.getElementById('profileModal').classList.remove('active'); 
+    }
 
     // Секретный тройной клик по логотипу для мобильных устройств
     function handleLogoClick() {
@@ -1144,9 +1154,6 @@
             }
         }, 500);
     }
-
-    function openProfile() { document.getElementById('profileModal').classList.add('active'); }
-    function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
 
     // Автоматически удалять из комнаты при закрытии
     window.addEventListener('beforeunload', () => {
