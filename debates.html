@@ -452,10 +452,10 @@
 <body>
 
     <header>
-        <a href="index.html" class="logo">MEHR</a>
+        <a href="index.html" class="logo" onclick="closeArena()">MEHR</a>
         <div class="nav-links">
             <span class="nav-link" onclick="openProfile()">Мой Профиль</span>
-            <a href="index.html" class="nav-link">На главную</a>
+            <a href="index.html" class="nav-link" onclick="closeArena()">На главную</a>
         </div>
     </header>
 
@@ -581,317 +581,338 @@
     </div>
 
     <script>
-        let currentRoomId = null;
-        let currentUser = localStorage.getItem('mehr_username') || 'Zquixx';
-        let timerInterval = null;
+    let currentRoomId = null;
+    let currentUser = localStorage.getItem('mehr_username') || 'Zquixx';
+    let timerInterval = null;
 
-        // Сочетание клавиш Ctrl + Shift + 7 для вызова админки
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.shiftKey && (e.key === '7' || e.code === 'Digit7' || e.keyCode === 55)) {
-                e.preventDefault();
-                openAdminAuth();
+    // Сочетание клавиш Ctrl + Shift + 7 для вызова админки
+    document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.shiftKey && (e.key === '7' || e.code === 'Digit7' || e.keyCode === 55)) {
+            e.preventDefault();
+            openAdminAuth();
+        }
+    });
+
+    // Данные дебатов
+    let debatesData = JSON.parse(localStorage.getItem('mehr_debates')) || [
+        {
+            id: '1',
+            title: 'Should it be illegal to resell concert tickets for more than the original price?',
+            status: 'Ожидание',
+            winner: 'Нет',
+            limit: 10,
+            lockTeams: false,
+            defenders: [],
+            attackers: [],
+            activeTimer: null
+        },
+        {
+            id: '2',
+            title: 'ИИ заменит большинство профессий через 10 лет',
+            status: 'Ожидание',
+            winner: 'Нет',
+            limit: 10,
+            lockTeams: false,
+            defenders: [],
+            attackers: [],
+            activeTimer: null
+        }
+    ];
+
+    function saveData() {
+        localStorage.setItem('mehr_debates', JSON.stringify(debatesData));
+        renderLobby();
+        if (currentRoomId) renderArena();
+    }
+
+    function renderLobby() {
+        const grid = document.getElementById('debatesGrid');
+        if (!grid) return;
+        grid.innerHTML = '';
+        
+        debatesData.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'debate-card';
+            card.innerHTML = `
+                <div>
+                    <div class="debate-title">${item.title}</div>
+                    <div class="debate-meta">Статус: <b>${item.status}</b> | Победитель: <b>${item.winner}</b></div>
+                </div>
+                <div class="scores-view">
+                    <span>🛡️ Защита: ${(item.defenders || []).length}</span>
+                    <span>⚔️ Атака: ${(item.attackers || []).length}</span>
+                </div>
+                <button class="btn-gold" style="width: 100%; font-size: 14px; padding: 10px;" onclick="openArena('${item.id}')">Присоединиться</button>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    /* --- АРЕНА ДЕБАТОВ И ЛОГИКА --- */
+    function openArena(id) {
+        currentRoomId = id;
+        document.getElementById('arenaModal').classList.add('active');
+        renderArena();
+    }
+
+    // ИСПРАВЛЕНИЕ: Удаление пользователя из команд при выходе из комнаты
+    function closeArena() {
+        if (currentRoomId) {
+            const room = debatesData.find(d => d.id === currentRoomId);
+            if (room) {
+                if (room.defenders) room.defenders = room.defenders.filter(u => u !== currentUser);
+                if (room.attackers) room.attackers = room.attackers.filter(u => u !== currentUser);
             }
+        }
+        currentRoomId = null;
+        saveData();
+        document.getElementById('arenaModal').classList.remove('active');
+    }
+
+    function renderArena() {
+        const room = debatesData.find(d => d.id === currentRoomId);
+        if (!room) return;
+
+        document.getElementById('arenaRoomTitle').innerText = room.title;
+
+        // Проверка блокировки выбора команд
+        const btnDef = document.getElementById('btnJoinDefenders');
+        const btnAtk = document.getElementById('btnJoinAttackers');
+
+        if (room.lockTeams) {
+            btnDef.disabled = true;
+            btnAtk.disabled = true;
+            btnDef.innerText = '🔒 Команды заблокированы';
+            btnAtk.innerText = '🔒 Команды заблокированы';
+        } else {
+            btnDef.disabled = false;
+            btnAtk.disabled = false;
+            btnDef.innerText = 'Встать на защиту';
+            btnAtk.innerText = 'Перейти в атаку';
+        }
+
+        // Отрисовка списка участников
+        const defContainer = document.getElementById('defendersList');
+        const atkContainer = document.getElementById('attackersList');
+
+        defContainer.innerHTML = '';
+        atkContainer.innerHTML = '';
+
+        (room.defenders || []).forEach(name => {
+            const pill = document.createElement('div');
+            pill.className = 'member-pill';
+            pill.innerText = name;
+            defContainer.appendChild(pill);
         });
 
-        // Данные дебатов
-        let debatesData = JSON.parse(localStorage.getItem('mehr_debates')) || [
-            {
-                id: '1',
-                title: 'Should it be illegal to resell concert tickets for more than the original price?',
-                status: 'Идет',
-                winner: 'Нет',
-                limit: 10,
-                lockTeams: false,
-                defenders: ['Zquixx'],
-                attackers: ['Zquixx 2'],
-                activeTimer: null
-            },
-            {
-                id: '2',
-                title: 'ИИ заменит большинство профессий через 10 лет',
-                status: 'Ожидание',
-                winner: 'Нет',
-                limit: 10,
-                lockTeams: false,
-                defenders: [],
-                attackers: [],
-                activeTimer: null
-            }
-        ];
+        (room.attackers || []).forEach(name => {
+            const pill = document.createElement('div');
+            pill.className = 'member-pill';
+            pill.innerText = name;
+            atkContainer.appendChild(pill);
+        });
 
-        function saveData() {
-            localStorage.setItem('mehr_debates', JSON.stringify(debatesData));
-            renderLobby();
-            if (currentRoomId) renderArena();
-        }
+        // Отрисовка таймера
+        renderSpeakingTimer(room);
+    }
 
-        function renderLobby() {
-            const grid = document.getElementById('debatesGrid');
-            grid.innerHTML = '';
-            
-            debatesData.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'debate-card';
-                card.innerHTML = `
-                    <div>
-                        <div class="debate-title">${item.title}</div>
-                        <div class="debate-meta">Статус: <b>${item.status}</b></div>
-                    </div>
-                    <div class="scores-view">
-                        <span>🛡️ Защита: ${(item.defenders || []).length}</span>
-                        <span>⚔️ Атака: ${(item.attackers || []).length}</span>
-                    </div>
-                    <button class="btn-gold" style="width: 100%; font-size: 14px; padding: 10px;" onclick="openArena('${item.id}')">Присоединиться</button>
-                `;
-                grid.appendChild(card);
-            });
-        }
+    function joinTeam(team) {
+        const room = debatesData.find(d => d.id === currentRoomId);
+        if (!room || room.lockTeams) return;
 
-        /* --- АРЕНА ДЕБАТОВ И ЛОГИКА --- */
-        function openArena(id) {
-            currentRoomId = id;
-            document.getElementById('arenaModal').classList.add('active');
-            renderArena();
-        }
+        if (!room.defenders) room.defenders = [];
+        if (!room.attackers) room.attackers = [];
 
-        function closeArena() {
-            currentRoomId = null;
-            document.getElementById('arenaModal').classList.remove('active');
-        }
+        // Удаляем из обеих команд перед входом
+        room.defenders = room.defenders.filter(u => u !== currentUser);
+        room.attackers = room.attackers.filter(u => u !== currentUser);
 
-        function renderArena() {
-            const room = debatesData.find(d => d.id === currentRoomId);
-            if (!room) return;
+        if (team === 'defenders') room.defenders.push(currentUser);
+        if (team === 'attackers') room.attackers.push(currentUser);
 
-            document.getElementById('arenaRoomTitle').innerText = room.title;
+        saveData();
+    }
 
-            // Проверка блокировки выбора команд
-            const btnDef = document.getElementById('btnJoinDefenders');
-            const btnAtk = document.getElementById('btnJoinAttackers');
+    /* --- ФУНКЦИИ АДМИНИСТРАТОРА --- */
+    function openAdminAuth() {
+        document.getElementById('adminAuthModal').classList.add('active');
+        document.getElementById('adminPassInput').focus();
+    }
 
-            if (room.lockTeams) {
-                btnDef.disabled = true;
-                btnAtk.disabled = true;
-                btnDef.innerText = '🔒 Команды заблокированы';
-                btnAtk.innerText = '🔒 Команды заблокированы';
-            } else {
-                btnDef.disabled = false;
-                btnAtk.disabled = false;
-                btnDef.innerText = 'Встать на защиту';
-                btnAtk.innerText = 'Перейти в атаку';
-            }
+    function closeAdminAuth() {
+        document.getElementById('adminAuthModal').classList.remove('active');
+        document.getElementById('adminPassInput').value = '';
+    }
 
-            // Отрисовка списка участников
-            const defContainer = document.getElementById('defendersList');
-            const atkContainer = document.getElementById('attackersList');
-
-            defContainer.innerHTML = '';
-            atkContainer.innerHTML = '';
-
-            (room.defenders || []).forEach(name => {
-                const pill = document.createElement('div');
-                pill.className = 'member-pill';
-                pill.innerText = name;
-                defContainer.appendChild(pill);
-            });
-
-            (room.attackers || []).forEach(name => {
-                const pill = document.createElement('div');
-                pill.className = 'member-pill';
-                pill.innerText = name;
-                atkContainer.appendChild(pill);
-            });
-
-            // Отрисовка таймера
-            renderSpeakingTimer(room);
-        }
-
-        function joinTeam(team) {
-            const room = debatesData.find(d => d.id === currentRoomId);
-            if (!room || room.lockTeams) return;
-
-            if (!room.defenders) room.defenders = [];
-            if (!room.attackers) room.attackers = [];
-
-            room.defenders = room.defenders.filter(u => u !== currentUser);
-            room.attackers = room.attackers.filter(u => u !== currentUser);
-
-            if (team === 'defenders') room.defenders.push(currentUser);
-            if (team === 'attackers') room.attackers.push(currentUser);
-
-            saveData();
-        }
-
-        /* --- ФУНКЦИИ АДМИНИСТРАТОРА --- */
-        function openAdminAuth() {
-            document.getElementById('adminAuthModal').classList.add('active');
-            document.getElementById('adminPassInput').focus();
-        }
-
-        function closeAdminAuth() {
-            document.getElementById('adminAuthModal').classList.remove('active');
-            document.getElementById('adminPassInput').value = '';
-        }
-
-        function checkAdminPass() {
-            const pass = document.getElementById('adminPassInput').value;
-            if (pass === 'admin2026') {
-                closeAdminAuth();
-                document.getElementById('adminTopLeftPanel').classList.add('active');
-                updateAdminPanelUI();
-            } else {
-                alert('Неверный пароль администратора!');
-            }
-        }
-
-        function closeAdminPanel() {
-            document.getElementById('adminTopLeftPanel').classList.remove('active');
-        }
-
-        function toggleTeamLock() {
-            const room = debatesData.find(d => d.id === currentRoomId);
-            if (!room) {
-                alert('Сначала войдите в комнату дебатов!');
-                return;
-            }
-
-            room.lockTeams = !room.lockTeams;
-            saveData();
+    function checkAdminPass() {
+        const pass = document.getElementById('adminPassInput').value;
+        if (pass === 'admin2026') {
+            closeAdminAuth();
+            document.getElementById('adminTopLeftPanel').classList.add('active');
             updateAdminPanelUI();
+        } else {
+            alert('Неверный пароль администратора!');
+        }
+    }
+
+    function closeAdminPanel() {
+        document.getElementById('adminTopLeftPanel').classList.remove('active');
+    }
+
+    function toggleTeamLock() {
+        const room = debatesData.find(d => d.id === currentRoomId);
+        if (!room) {
+            alert('Сначала войдите в комнату дебатов!');
+            return;
         }
 
-        function updateAdminPanelUI() {
+        room.lockTeams = !room.lockTeams;
+        saveData();
+        updateAdminPanelUI();
+    }
+
+    function updateAdminPanelUI() {
+        const room = debatesData.find(d => d.id === currentRoomId);
+        const btnLock = document.getElementById('btnToggleLock');
+        if (!room || !btnLock) return;
+
+        if (room.lockTeams) {
+            btnLock.innerText = '🔒 Команды ЗАБЛОКИРОВАНЫ (Нажмите чтобы открыть)';
+            btnLock.classList.add('active');
+        } else {
+            btnLock.innerText = '🔓 Заблокировать смену команд';
+            btnLock.classList.remove('active');
+        }
+    }
+
+    function shuffleTeams() {
+        const room = debatesData.find(d => d.id === currentRoomId);
+        if (!room) {
+            alert('Сначала войдите в комнату дебатов!');
+            return;
+        }
+
+        let allMembers = [...(room.defenders || []), ...(room.attackers || [])];
+        allMembers.sort(() => Math.random() - 0.5);
+
+        const mid = Math.ceil(allMembers.length / 2);
+        room.defenders = allMembers.slice(0, mid);
+        room.attackers = allMembers.slice(mid);
+
+        saveData();
+    }
+
+    /* --- ТАЙМЕР СПИКИРОВАНИЯ --- */
+    function startSpeakingTimer() {
+        const room = debatesData.find(d => d.id === currentRoomId);
+        if (!room) {
+            alert('Сначала откройте комнату дебатов!');
+            return;
+        }
+
+        const team = document.getElementById('timerTeamSelect').value;
+        const seconds = parseInt(document.getElementById('timerSecondsInput').value) || 60;
+        const reason = document.getElementById('timerReasonInput').value || 'Спикинг';
+
+        room.activeTimer = {
+            team: team,
+            endTime: Date.now() + (seconds * 1000),
+            reason: reason
+        };
+
+        saveData();
+        runTimerLoop();
+    }
+
+    function stopSpeakingTimer() {
+        const room = debatesData.find(d => d.id === currentRoomId);
+        if (!room) return;
+
+        room.activeTimer = null;
+        saveData();
+    }
+
+    function renderSpeakingTimer(room) {
+        const timerBox = document.getElementById('speakingTimerDisplay');
+        if (!room || !room.activeTimer) {
+            if (timerBox) timerBox.style.display = 'none';
+            return;
+        }
+
+        if (timerBox) timerBox.style.display = 'block';
+        const badge = document.getElementById('timerBadge');
+        const clock = document.getElementById('timerClock');
+        const reason = document.getElementById('timerReason');
+
+        if (room.activeTimer.team === 'defenders') {
+            if (badge) { badge.innerText = '🛡️ ГОВОРИТ КОМАНДА ЗАЩИТЫ'; badge.className = 'timer-badge def'; }
+        } else {
+            if (badge) { badge.innerText = '⚔️ ГОВОРИТ КОМАНДА АТАКИ'; badge.className = 'timer-badge atk'; }
+        }
+
+        if (reason) reason.innerText = `Причина: ${room.activeTimer.reason}`;
+        runTimerLoop();
+    }
+
+    function runTimerLoop() {
+        if (timerInterval) clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
             const room = debatesData.find(d => d.id === currentRoomId);
-            const btnLock = document.getElementById('btnToggleLock');
-            if (!room) return;
-
-            if (room.lockTeams) {
-                btnLock.innerText = '🔒 Команды ЗАБЛОКИРОВАНЫ (Нажмите чтобы открыть)';
-                btnLock.classList.add('active');
-            } else {
-                btnLock.innerText = '🔓 Заблокировать смену команд';
-                btnLock.classList.remove('active');
-            }
-        }
-
-        function shuffleTeams() {
-            const room = debatesData.find(d => d.id === currentRoomId);
-            if (!room) {
-                alert('Сначала войдите в комнату дебатов!');
-                return;
-            }
-
-            let allMembers = [...(room.defenders || []), ...(room.attackers || [])];
-            allMembers.sort(() => Math.random() - 0.5);
-
-            const mid = Math.ceil(allMembers.length / 2);
-            room.defenders = allMembers.slice(0, mid);
-            room.attackers = allMembers.slice(mid);
-
-            saveData();
-        }
-
-        /* --- ТАЙМЕР СПИКТИНГА --- */
-        function startSpeakingTimer() {
-            const room = debatesData.find(d => d.id === currentRoomId);
-            if (!room) {
-                alert('Сначала открыте комнату дебатов!');
-                return;
-            }
-
-            const team = document.getElementById('timerTeamSelect').value;
-            const seconds = parseInt(document.getElementById('timerSecondsInput').value) || 60;
-            const reason = document.getElementById('timerReasonInput').value || 'Спикинг';
-
-            room.activeTimer = {
-                team: team,
-                endTime: Date.now() + (seconds * 1000),
-                reason: reason
-            };
-
-            saveData();
-            runTimerLoop();
-        }
-
-        function stopSpeakingTimer() {
-            const room = debatesData.find(d => d.id === currentRoomId);
-            if (!room) return;
-
-            room.activeTimer = null;
-            saveData();
-        }
-
-        function renderSpeakingTimer(room) {
-            const timerBox = document.getElementById('speakingTimerDisplay');
             if (!room || !room.activeTimer) {
-                timerBox.style.display = 'none';
+                clearInterval(timerInterval);
                 return;
             }
 
-            timerBox.style.display = 'block';
-            const badge = document.getElementById('timerBadge');
-            const clock = document.getElementById('timerClock');
-            const reason = document.getElementById('timerReason');
+            const remainingSec = Math.max(0, Math.ceil((room.activeTimer.endTime - Date.now()) / 1000));
+            
+            const mins = Math.floor(remainingSec / 60).toString().padStart(2, '0');
+            const secs = (remainingSec % 60).toString().padStart(2, '0');
+            
+            const clockEl = document.getElementById('timerClock');
+            if (clockEl) clockEl.innerText = `${mins}:${secs}`;
 
-            if (room.activeTimer.team === 'defenders') {
-                badge.innerText = '🛡️ ГОВОРИТ КОМАНДА ЗАЩИТЫ';
-                badge.className = 'timer-badge def';
-            } else {
-                badge.innerText = '⚔️ ГОВОРИТ КОМАНДА АТАКИ';
-                badge.className = 'timer-badge atk';
+            if (remainingSec <= 0) {
+                clearInterval(timerInterval);
             }
+        }, 500);
+    }
 
-            reason.innerText = `Причина: ${room.activeTimer.reason}`;
-            runTimerLoop();
+    function createTopic() {
+        const titleInput = document.getElementById('newTopicTitle');
+        if (!titleInput || !titleInput.value.trim()) return;
+
+        debatesData.push({
+            id: Date.now().toString(),
+            title: titleInput.value.trim(),
+            status: 'Ожидание',
+            winner: 'Нет',
+            limit: 10,
+            lockTeams: false,
+            defenders: [],
+            attackers: [],
+            activeTimer: null
+        });
+        titleInput.value = '';
+        saveData();
+    }
+
+    function openProfile() { document.getElementById('profileModal').classList.add('active'); }
+    function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
+
+    // Автоматически удалять из комнаты при закрытии или обновлении страницы
+    window.addEventListener('beforeunload', () => {
+        if (currentRoomId) {
+            const room = debatesData.find(d => d.id === currentRoomId);
+            if (room) {
+                if (room.defenders) room.defenders = room.defenders.filter(u => u !== currentUser);
+                if (room.attackers) room.attackers = room.attackers.filter(u => u !== currentUser);
+                localStorage.setItem('mehr_debates', JSON.stringify(debatesData));
+            }
         }
+    });
 
-        function runTimerLoop() {
-            if (timerInterval) clearInterval(timerInterval);
-
-            timerInterval = setInterval(() => {
-                const room = debatesData.find(d => d.id === currentRoomId);
-                if (!room || !room.activeTimer) {
-                    clearInterval(timerInterval);
-                    return;
-                }
-
-                const remainingSec = Math.max(0, Math.ceil((room.activeTimer.endTime - Date.now()) / 1000));
-                
-                const mins = Math.floor(remainingSec / 60).toString().padStart(2, '0');
-                const secs = (remainingSec % 60).toString().padStart(2, '0');
-                
-                const clockEl = document.getElementById('timerClock');
-                if (clockEl) clockEl.innerText = `${mins}:${secs}`;
-
-                if (remainingSec <= 0) {
-                    clearInterval(timerInterval);
-                }
-            }, 500);
-        }
-
-        function createTopic() {
-            const titleInput = document.getElementById('newTopicTitle');
-            if (!titleInput.value.trim()) return;
-
-            debatesData.push({
-                id: Date.now().toString(),
-                title: titleInput.value.trim(),
-                status: 'Ожидание',
-                winner: 'Нет',
-                limit: 10,
-                lockTeams: false,
-                defenders: [],
-                attackers: [],
-                activeTimer: null
-            });
-            titleInput.value = '';
-            saveData();
-        }
-
-        function openProfile() { document.getElementById('profileModal').classList.add('active'); }
-        function closeProfile() { document.getElementById('profileModal').classList.remove('active'); }
-
-        renderLobby();
-    </script>
+    renderLobby();
+</script>
 </body>
 </html>
