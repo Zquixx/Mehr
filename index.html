@@ -473,9 +473,9 @@
   <ul>
     <li><a href="#mission">О нас</a></li>
     <li><a href="#directions">Направления</a></li>
-    <li><a href="#events">Дебаты</a></li>
+    <!-- ИСПРАВЛЕНО: Ссылка ведет напрямую на debates.html -->
+    <li><a href="debates.html">Дебаты</a></li>
     <li><a href="#gallery">Галерея</a></li>
-    <!-- КНОПКА АДМИНКИ СКРЫТА ПО УМОЛЧАНИЮ -->
     <li><button class="admin-nav-btn" id="adminBtn" style="display:none;" onclick="toggleAdminModal(true)">⚙️ Админка</button></li>
     <li class="login-li"><a class="login-btn" id="loginToggleBtn" href="#"><span class="avatar">Z</span> Войти</a></li>
   </ul>
@@ -499,7 +499,7 @@
 
       <div class="goddess" id="goddess">
         <svg viewBox="0 0 220 420" xmlns="http://www.w3.org/2000/svg">
-                    <defs><radialGradient id="phoneGlow" cx="50%" cy="100%" r="80%"><stop offset="0%" stop-color="#8fd3e8"/><stop offset="50%" stop-color="#2a3c31"/><stop offset="100%" stop-color="#0a120d"/></radialGradient></defs>
+          <defs><radialGradient id="phoneGlow" cx="50%" cy="100%" r="80%"><stop offset="0%" stop-color="#8fd3e8"/><stop offset="50%" stop-color="#2a3c31"/><stop offset="100%" stop-color="#0a120d"/></radialGradient></defs>
           <g id="personDark" style="opacity:1;"><circle cx="110" cy="55" r="32" fill="url(#phoneGlow)"/><path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#0a120d"/><path d="M 68 112 L 40 148 L 84 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M 152 112 L 180 148 L 136 172" stroke="#0a120d" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
           <g id="personLight" style="opacity:0;"><circle cx="110" cy="55" r="32" fill="#f2f2ea"/><path d="M110 95 C138 95 152 115 152 140 L148 350 L116 350 L112 250 L108 250 L104 350 L72 350 L68 140 C68 115 82 95 110 95 Z" fill="#f2f2ea"/><path d="M 68 112 L 46 180 L 52 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M 152 112 L 174 180 L 168 245" stroke="#f2f2ea" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" fill="none"/></g>
           <g id="phoneGroup"><rect x="90" y="138" width="40" height="68" rx="6" fill="#1c1c1c" stroke="#3a3a3a" stroke-width="2"/><rect id="phoneScreen" x="94" y="142" width="32" height="60" rx="3" fill="#8fd3e8"/></g>
@@ -557,7 +557,8 @@
     <div class="card reveal">
       <div class="icon">💬</div><h3>Диалог и дебаты</h3>
       <p>Организуем открытые дебаты и дискуссионные встречи на актуальные темы.</p>
-      <a href="#events">К дебатам</a>
+      <!-- ИСПРАВЛЕНО: Кнопка ведет напрямую на debates.html -->
+      <a href="debates.html">К дебатам</a>
     </div>
     <div class="card reveal">
       <div class="icon">🎓</div><h3>Образование и поступление</h3>
@@ -968,55 +969,55 @@
       phoneGroup.style.opacity = 1 - phoneP;
       phoneGroup.style.transform = `scale(${1 - phoneP * 0.3})`;
       phoneGroup.style.transformOrigin = '110px 173px';
-                if (personDark) personDark.style.opacity = 1 - phoneP;
-          if (personLight) personLight.style.opacity = phoneP;
-        }
+      if (personDark) personDark.style.opacity = 1 - phoneP;
+      if (personLight) personLight.style.opacity = phoneP;
+    }
 
-        if (sunWrap) {
-          const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
-          sunWrap.style.opacity = sunP;
-        }
-        
-        sunRays.forEach((ray, i) => {
-          ray.style.transformOrigin = '150px 150px';
-          ray.style.transform = `rotate(${progress * 180 + i * 10}deg)`;
-        });
+    if (sunWrap) {
+      const sunP = Math.min(Math.max((progress - 0.15) / 0.4, 0), 1);
+      sunWrap.style.opacity = sunP;
+    }
+    
+    sunRays.forEach((ray, i) => {
+      ray.style.transformOrigin = '150px 150px';
+      ray.style.transform = `rotate(${progress * 180 + i * 10}deg)`;
+    });
 
-        cracks.forEach((c) => { if(c) c.style.opacity = 1 - progress; });
-        trees.forEach((t) => {
-          if(t) {
-            t.style.opacity = progress;
-            t.style.transform = `translateY(${(1 - progress) * 40}px) scale(${0.6 + progress * 0.4})`;
-          }
-        });
-        houses.forEach((h) => {
-          if(h) {
-            h.style.opacity = progress;
-            h.style.transform = `translateY(${(1 - progress) * 50}px) scale(${0.5 + progress * 0.5})`;
-          }
-        });
+    cracks.forEach((c) => { if(c) c.style.opacity = 1 - progress; });
+    trees.forEach((t) => {
+      if(t) {
+        t.style.opacity = progress;
+        t.style.transform = `translateY(${(1 - progress) * 40}px) scale(${0.6 + progress * 0.4})`;
       }
-
-      window.addEventListener('scroll', updateScene);
-      window.addEventListener('resize', updateScene);
-      updateScene();
-
-      const glow = document.getElementById('cursorGlow');
-      window.addEventListener('mousemove', (e) => {
-        if(glow) {
-          glow.style.transform = `translate(${e.clientX - 175}px, ${e.clientY - 175}px)`;
-        }
-      });
-
-      const reveals = document.querySelectorAll('.reveal');
-      function checkReveal() {
-        reveals.forEach(el => {
-          const top = el.getBoundingClientRect().top;
-          if(top < window.innerHeight - 100) el.classList.add('visible');
-        });
+    });
+    houses.forEach((h) => {
+      if(h) {
+        h.style.opacity = progress;
+        h.style.transform = `translateY(${(1 - progress) * 50}px) scale(${0.5 + progress * 0.5})`;
       }
-      window.addEventListener('scroll', checkReveal);
-      checkReveal();
-    </script>
-    </body>
-    </html>
+    });
+  }
+
+  window.addEventListener('scroll', updateScene);
+  window.addEventListener('resize', updateScene);
+  updateScene();
+
+  const glow = document.getElementById('cursorGlow');
+  window.addEventListener('mousemove', (e) => {
+    if(glow) {
+      glow.style.transform = `translate(${e.clientX - 175}px, ${e.clientY - 175}px)`;
+    }
+  });
+
+  const reveals = document.querySelectorAll('.reveal');
+  function checkReveal() {
+    reveals.forEach(el => {
+      const top = el.getBoundingClientRect().top;
+      if(top < window.innerHeight - 100) el.classList.add('visible');
+    });
+  }
+  window.addEventListener('scroll', checkReveal);
+  checkReveal();
+</script>
+</body>
+</html>
