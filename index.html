@@ -437,11 +437,11 @@
   </div>
 </div>
 
-<!-- АДМИН-ПАНЕЛЬ (МОДАЛЬНОЕ ОКНО СОЗДАНИЯ СОБЫТИЯ) -->
+<!-- АДМИН-ПАНЕЛЬ (УПРАВЛЕНИЕ, ДОБАВЛЕНИЕ И РЕДАКТИРОВАНИЕ) -->
 <div class="auth-modal" id="adminModal">
-  <div class="auth-box">
+  <div class="auth-box" style="max-height: 85vh; overflow-y: auto;">
     <span class="close-modal" onclick="toggleAdminModal(false)">&times;</span>
-    <h2>⚙️ Добавить событие</h2>
+    <h2 id="admModalTitle">⚙️ Добавить событие</h2>
     
     <label>Название события / турнира:</label>
     <input type="text" id="admTitle" placeholder="Например: Очные Дебаты в YES Фергана" required>
@@ -458,7 +458,13 @@
     <label>Дедлайн подачи информации / регистрации:</label>
     <input type="datetime-local" id="admDeadline" required>
 
-    <button class="auth-btn" onclick="publishEvent()">Опубликовать событие</button>
+    <button class="auth-btn" id="admSubmitBtn" onclick="saveEvent()">Опубликовать событие</button>
+    <button class="auth-btn" id="admCancelEditBtn" style="display:none; background:#444; color:#fff;" onclick="resetAdminForm()">Отмена редактирования</button>
+
+    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+    <h3 style="color: var(--accent-gold); font-size: 1rem; margin-bottom: 12px; text-align: left;">📋 Действующие события</h3>
+    <div id="adminEventsList" style="display: flex; flex-direction: column; gap: 10px; text-align: left;"></div>
   </div>
 </div>
 
@@ -473,7 +479,6 @@
   <ul>
     <li><a href="#mission">О нас</a></li>
     <li><a href="#directions">Направления</a></li>
-    <!-- ИСПРАВЛЕНО: Ссылка ведет напрямую на debates.html -->
     <li><a href="debates.html">Дебаты</a></li>
     <li><a href="#gallery">Галерея</a></li>
     <li><button class="admin-nav-btn" id="adminBtn" style="display:none;" onclick="toggleAdminModal(true)">⚙️ Админка</button></li>
@@ -557,7 +562,6 @@
     <div class="card reveal">
       <div class="icon">💬</div><h3>Диалог и дебаты</h3>
       <p>Организуем открытые дебаты и дискуссионные встречи на актуальные темы.</p>
-      <!-- ИСПРАВЛЕНО: Кнопка ведет напрямую на debates.html -->
       <a href="debates.html">К дебатам</a>
     </div>
     <div class="card reveal">
@@ -594,7 +598,6 @@
   const BOT_TOKEN = '8942675207:AAGlXLi-7viMsMFBKXJKcK_1svX3C18GTPw';
   const CHAT_ID = '-1004421499147';
   
-  // УКАЗАННЫЕ ДАННЫЕ АДМИНИСТРАТОРА
   const ADMIN_EMAIL = 'fdfjivf@gmail.com';
   const ADMIN_CODE = '20108586';
 
@@ -754,8 +757,10 @@
     }
   }
 
-  /* ---------------- АДМИНКА: ПРОВЕРКА ПРАВ И ДОБАВЛЕНИЕ ---------------- */
+  /* ---------------- АДМИНКА: СОЗДАНИЕ, РЕДАКТИРОВАНИЕ И УДАЛЕНИЕ ---------------- */
   const adminModal = document.getElementById('adminModal');
+  let editingEventId = null;
+  let cachedEvents = {};
 
   function toggleAdminModal(show) {
     const user = auth.currentUser;
@@ -768,10 +773,25 @@
         return;
       }
     }
-    if (adminModal) adminModal.style.display = show ? 'flex' : 'none';
+    if (adminModal) {
+      adminModal.style.display = show ? 'flex' : 'none';
+      if (!show) resetAdminForm();
+    }
   }
 
-  function publishEvent() {
+  function resetAdminForm() {
+    editingEventId = null;
+    document.getElementById('admModalTitle').innerText = '⚙️ Добавить событие';
+    document.getElementById('admSubmitBtn').innerText = 'Опубликовать событие';
+    document.getElementById('admCancelEditBtn').style.display = 'none';
+    document.getElementById('admTitle').value = '';
+    document.getElementById('admDesc').value = '';
+    document.getElementById('admLocation').value = '';
+    document.getElementById('admEventDate').value = '';
+    document.getElementById('admDeadline').value = '';
+  }
+
+  function saveEvent() {
     const title = document.getElementById('admTitle').value.trim();
     const desc = document.getElementById('admDesc').value.trim();
     const location = document.getElementById('admLocation').value.trim();
@@ -783,26 +803,60 @@
       return;
     }
 
-    const newEvent = {
+    const eventData = {
       title,
       desc,
       location,
       eventDate,
       deadline,
-      createdAt: new Date().toISOString()
+      updatedAt: new Date().toISOString()
     };
 
-    db.ref('events').push(newEvent)
-      .then(() => {
-        alert("Событие успешно добавлено!");
-        toggleAdminModal(false);
-        document.getElementById('admTitle').value = '';
-        document.getElementById('admDesc').value = '';
-        document.getElementById('admLocation').value = '';
-        document.getElementById('admEventDate').value = '';
-        document.getElementById('admDeadline').value = '';
-      })
-      .catch(err => alert("Ошибка добавления: " + err.message));
+    if (editingEventId) {
+      db.ref('events/' + editingEventId).update(eventData)
+        .then(() => {
+          alert("Событие успешно обновлено!");
+          resetAdminForm();
+          toggleAdminModal(false);
+        })
+        .catch(err => alert("Ошибка обновления: " + err.message));
+    } else {
+      eventData.createdAt = new Date().toISOString();
+      db.ref('events').push(eventData)
+        .then(() => {
+          alert("Событие успешно добавлено!");
+          resetAdminForm();
+          toggleAdminModal(false);
+        })
+        .catch(err => alert("Ошибка добавления: " + err.message));
+    }
+  }
+
+  function editEvent(id) {
+    const ev = cachedEvents[id];
+    if (!ev) return;
+
+    editingEventId = id;
+    document.getElementById('admModalTitle').innerText = '✏️ Редактировать событие';
+    document.getElementById('admSubmitBtn').innerText = 'Сохранить изменения';
+    document.getElementById('admCancelEditBtn').style.display = 'block';
+
+    document.getElementById('admTitle').value = ev.title || '';
+    document.getElementById('admDesc').value = ev.desc || '';
+    document.getElementById('admLocation').value = ev.location || '';
+    document.getElementById('admEventDate').value = ev.eventDate || '';
+    document.getElementById('admDeadline').value = ev.deadline || '';
+  }
+
+  function deleteEvent(id) {
+    if (confirm("Вы уверены, что хотите удалить это событие?")) {
+      db.ref('events/' + id).remove()
+        .then(() => {
+          alert("Событие удалено!");
+          if (editingEventId === id) resetAdminForm();
+        })
+        .catch(err => alert("Ошибка удаления: " + err.message));
+    }
   }
 
   /* ---------------- ЗАГРУЗКА И ОТОБРАЖЕНИЕ СОБЫТИЙ ИЗ FIREBASE ---------------- */
@@ -820,13 +874,18 @@
 
   db.ref('events').on('value', (snapshot) => {
     const eventsContainer = document.getElementById('eventsContainer');
+    const adminEventsList = document.getElementById('adminEventsList');
     const liveBadge = document.getElementById('liveBadge');
-    if (!eventsContainer) return;
-    eventsContainer.innerHTML = '';
-
-    const eventsData = snapshot.val();
     
-    if (!eventsData) {
+    if (eventsContainer) eventsContainer.innerHTML = '';
+    if (adminEventsList) adminEventsList.innerHTML = '';
+
+    const eventsData = snapshot.val() || {};
+    cachedEvents = eventsData;
+
+    const eventKeys = Object.keys(eventsData);
+
+    if (eventKeys.length === 0) {
       const defaultEvent = {
         title: "Очные Дебаты в Фергане",
         desc: "Живой турнир по правилам MEHR Debates. Проверь свои навыки ораторского искусства и логики!",
@@ -838,14 +897,34 @@
       if (liveBadge) {
         liveBadge.innerHTML = `<span class="pulse-dot"></span> Ближайший турнир: Суббота, 26 сентября (14:00) — YES Fergana`;
       }
+      if (adminEventsList) {
+        adminEventsList.innerHTML = '<p style="font-size:0.85rem; opacity:0.6;">Нет созданных событий в базе данных.</p>';
+      }
       return;
     }
 
-    let eventArray = Object.keys(eventsData).map(key => ({ id: key, ...eventsData[key] }));
+    let eventArray = eventKeys.map(key => ({ id: key, ...eventsData[key] }));
     eventArray.sort((a, b) => new Date(a.eventDate) - new Date(b.eventDate));
 
     eventArray.forEach((ev) => {
       renderEventCard(ev.id, ev);
+
+      // Генерация элемента в списке админ-панели
+      if (adminEventsList) {
+        const item = document.createElement('div');
+        item.style.cssText = 'background: rgba(0,0,0,0.4); padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;';
+        item.innerHTML = `
+          <div>
+            <strong style="color: #fff; display: block;">${ev.title}</strong>
+            <span style="color: var(--text-muted); font-size: 0.75rem;">📅 ${formatDateString(ev.eventDate)}</span>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button onclick="editEvent('${ev.id}')" style="background: var(--accent-gold); border: none; border-radius: 4px; padding: 4px 8px; font-weight: bold; cursor: pointer; color: #000;">✏️</button>
+            <button onclick="deleteEvent('${ev.id}')" style="background: #e74c3c; border: none; border-radius: 4px; padding: 4px 8px; font-weight: bold; cursor: pointer; color: #fff;">🗑️</button>
+          </div>
+        `;
+        adminEventsList.appendChild(item);
+      }
     });
 
     if (eventArray.length > 0 && liveBadge) {
